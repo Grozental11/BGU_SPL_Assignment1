@@ -3,6 +3,10 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	"args": {
+        "VARIANT": "1-ubuntu-20.04",
+        "PLATFORM": "linux/arm64"
+    },
 		// Add the IDs of extensions you want installed when the container is created.
 		"extensions": [
 			"ms-vscode.cpptools-extension-pack",
