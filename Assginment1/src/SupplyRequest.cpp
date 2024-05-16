@@ -51,3 +51,6 @@ const std::string SupplyRequest::toString() const
     }
     return "SupplyRequest{id=" + std::to_string(id) + ", beneficiaryId=" + std::to_string(beneficiaryId) + ", distance=" + std::to_string(distance) + ", status=" + statusString + ", inventoryManagerId=" + std::to_string(inventoryManagerId) + ", CourierId=" + std::to_string(CourierId) + "}";
 }
+
+// My functions
+int SupplyRequest::getDistance() const { return distance; }
