@@ -5,7 +5,7 @@
 
 // CoreAction
 CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
-CoreAction::ActionStatus CoreAction::getStatus() const { return status; }
+ActionStatus CoreAction::getStatus() const { return status; }
 void CoreAction::complete() { status = ActionStatus::COMPLETED; }
 void CoreAction::error(string errorMsg) { status = ActionStatus::ERROR; }
 string CoreAction::getErrorMsg() const { return errorMsg; }
@@ -37,9 +37,11 @@ string AddRequset::toString() const { return "AddRequset"; }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 
 // RegisterBeneficiary
-RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests)
-{
-    // Continue the funcion
+RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests){
+    //Create a new Beneficiary by his type and add it to the MedicalWareHouse
+    Beneficiary *newBeneficiary;
+    
+    medWareHouse.addBeneficiary(newBeneficiary);
 }
 
 void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse)
@@ -56,4 +58,38 @@ void PrintRequestStatus::act(MedicalWareHouse &medWareHouse) {}
 PrintRequestStatus *PrintRequestStatus::clone() const { return new PrintRequestStatus(*this); }
 string PrintRequestStatus::toString() const { return "PrintRequestStatus"; }
 
-// PrintActionStatus
+// PrintBeneficiaryStatus
+PrintBeneficiaryStatus::PrintBeneficiaryStatus(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
+void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse) {}
+PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const { return new PrintBeneficiaryStatus(*this); }
+string PrintBeneficiaryStatus::toString() const { return "PrintBeneficiaryStatus"; }
+
+// PrintVolunteerStatus
+PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}
+void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse) {}
+PrintVolunteerStatus *PrintVolunteerStatus::clone() const { return new PrintVolunteerStatus(*this); }
+string PrintVolunteerStatus::toString() const { return "PrintVolunteerStatus"; }
+
+// PrintActionsLog
+PrintActionsLog::PrintActionsLog() {}
+void PrintActionsLog::act(MedicalWareHouse &medWareHouse) {}
+PrintActionsLog *PrintActionsLog::clone() const { return new PrintActionsLog(*this); }
+string PrintActionsLog::toString() const { return "PrintActionsLog"; }
+
+// Close
+Close::Close() {}
+void Close::act(MedicalWareHouse &medWareHouse) {}
+Close *Close::clone() const { return new Close(*this); }
+string Close::toString() const { return "Close"; }
+
+// BackupWareHouse
+BackupWareHouse::BackupWareHouse() {}
+void BackupWareHouse::act(MedicalWareHouse &medWareHouse) {}
+BackupWareHouse *BackupWareHouse::clone() const { return new BackupWareHouse(*this); }
+string BackupWareHouse::toString() const { return "BackupWareHouse"; }
+
+// RestoreWareHouse
+RestoreWareHouse::RestoreWareHouse() {}
+void RestoreWareHouse::act(MedicalWareHouse &medWareHouse) {}
+RestoreWareHouse *RestoreWareHouse::clone() const { return new RestoreWareHouse(*this); }
+string RestoreWareHouse::toString() const { return "RestoreWareHouse"; }
