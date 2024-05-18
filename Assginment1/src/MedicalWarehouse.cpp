@@ -8,34 +8,206 @@
 #include "Beneficiary.h"
 #include <MedicalWarehouse.h>
 #include "Volunteer.h"
+#include <Action.h>
+
+using namespace std;
 
 MedicalWareHouse::MedicalWareHouse(const string &configFilePath)
-    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(), beneficiaryCounter(0), volunteerCounter(0) {}
-
-// ATT: NEED TO IMPLEMENT THE START FUNCTION
-void MedicalWareHouse::start() {}
-
-void MedicalWareHouse::addRequest(SupplyRequest *request)
+    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(), beneficiaryCounter(0), volunteerCounter(0)
 {
-    // ATT: Do I need to make checks for the request?
-    pendingRequests.push_back(request);
+    initializeFromConfig(configFilePath);
 }
+void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
+{
+    std::ifstream inFile(configFilePath);
+    if (!inFile.is_open())
+    {
+        std::cerr << "Error: Cannot open configuration file." << std::endl;
+        return;
+    }
+
+    std::string line, firstWord, name, type;
+    int coolDown, maxRequests, distance, maxDistance, distancePerStep;
+    while (getline(inFile, line))
+    {
+        std::istringstream iss(line);
+        iss >> firstWord;
+        if (firstWord == "beneficiary")
+        {
+            iss >> name >> type >> distance >> maxRequests;
+            if (type == "hospital")
+            {
+                HospitalBeneficiary *hospitalBeneficiary = new HospitalBeneficiary(getNextBeneficiaryId(), name, distance, maxRequests);
+                addNewBeneficiary(hospitalBeneficiary);
+            }
+            else if (type == "clinic")
+            {
+                ClinicBeneficiary *clinicBeneficiary = new ClinicBeneficiary(getNextBeneficiaryId(), name, distance, maxRequests);
+                addNewBeneficiary(clinicBeneficiary);
+            }
+        }
+        else if (firstWord == "volunteer")
+        {
+            iss >> name >> type;
+            if (type == "inventory_manager")
+            {
+                iss >> coolDown;
+                InventoryManagerVolunteer *inventoryManagerVolunteer = new InventoryManagerVolunteer(getNextVolunteerId(), name, coolDown);
+                volunteers.push_back(inventoryManagerVolunteer);
+            }
+            else if (type == "courier")
+            {
+                iss >> maxDistance >> distancePerStep;
+                CourierVolunteer *courierVolunteer = new CourierVolunteer(getNextVolunteerId(), name, maxDistance, distancePerStep);
+                volunteers.push_back(courierVolunteer);
+            }
+        }
+        firstWord.clear();
+        name.clear();
+        type.clear();
+        coolDown = -1;
+        maxRequests = -1;
+        distance = -1;
+        maxDistance = -1;
+        distancePerStep = -1;
+    }
+    inFile.close();
+}
+
+void MedicalWareHouse::start()
+{
+    cout << "Medical services are now open!" << endl;
+
+    string command;
+    while (true)
+    {
+        cout << "> ";
+        getline(cin, command);
+        if (command.empty())
+        {
+            continue;
+        }
+
+        istringstream iss(command);
+        string actionType;
+        iss >> actionType;
+
+        try
+        {
+            if (actionType == "request")
+            {
+                int beneficiaryId;
+                iss >> beneficiaryId;
+                if (iss.fail())
+                {
+                    throw invalid_argument("Invalid beneficiary ID.");
+                }
+                AddRequset *requestAction = new AddRequset(beneficiaryId);
+                requestAction->act(*this);
+                addAction(requestAction);
+            }
+            else if (actionType == "step")
+            {
+                int steps;
+                iss >> steps;
+                if (iss.fail() || steps <= 0)
+                {
+                    throw invalid_argument("Invalid number of steps.");
+                }
+                SimulateStep *stepAction = new SimulateStep(steps);
+                stepAction->act(*this);
+                addAction(stepAction);
+            }
+            else if (actionType == "register")
+            {
+                string name, type;
+                int distance, maxRequests;
+                iss >> name >> type >> distance >> maxRequests;
+                if (iss.fail())
+                {
+                    throw invalid_argument("Invalid register command.");
+                }
+                RegisterBeneficiary *registerAction = new RegisterBeneficiary(name, type, distance, maxRequests);
+                registerAction->act(*this);
+                addAction(registerAction);
+            }
+            else if (actionType == "requestStatus")
+            {
+                int requestId;
+                iss >> requestId;
+                if (iss.fail())
+                {
+                    throw invalid_argument("Invalid request ID.");
+                }
+                PrintRequestStatus *printRequestStatusAction = new PrintRequestStatus(requestId);
+                printRequestStatusAction->act(*this);
+                addAction(printRequestStatusAction);
+            }
+            else if (actionType == "beneficiaryStatus")
+            {
+                int beneficiaryId;
+                iss >> beneficiaryId;
+                if (iss.fail())
+                {
+                    throw invalid_argument("Invalid beneficiary ID.");
+                }
+                PrintBeneficiaryStatus *printBeneficiaryStatusAction = new PrintBeneficiaryStatus(beneficiaryId);
+                printBeneficiaryStatusAction->act(*this);
+                addAction(printBeneficiaryStatusAction);
+            }
+            else if (actionType == "volunteerStatus")
+            {
+                int volunteerId;
+                iss >> volunteerId;
+                if (iss.fail())
+                {
+                    throw invalid_argument("Invalid volunteer ID.");
+                }
+                PrintVolunteerStatus *printVolunteerStatusAction = new PrintVolunteerStatus(volunteerId);
+                printVolunteerStatusAction->act(*this);
+                addAction(printVolunteerStatusAction);
+            }
+            else if (actionType == "log")
+            {
+                PrintActionsLog *printActionsLogAction = new PrintActionsLog();
+                printActionsLogAction->act(*this);
+                addAction(printActionsLogAction);
+            }
+            else if (actionType == "close")
+            {
+                Close *closeAction = new Close();
+                closeAction->act(*this);
+                addAction(closeAction);
+                break; // Exit the loop
+            }
+            else if (actionType == "backup")
+            {
+                BackupWareHouse *backupAction = new BackupWareHouse();
+                backupAction->act(*this);
+                addAction(backupAction);
+            }
+            else if (actionType == "restore")
+            {
+                RestoreWareHouse *restoreAction = new RestoreWareHouse();
+                restoreAction->act(*this);
+                addAction(restoreAction);
+            }
+            else
+            {
+                throw invalid_argument("Unknown command.");
+            }
+        }
+        catch (const exception &e)
+        {
+            cerr << "Error: " << e.what() << endl;
+        }
+    }
+}
+void MedicalWareHouse::addRequest(SupplyRequest *request) { pendingRequests.push_back(request); }
 void MedicalWareHouse::addAction(CoreAction *action)
 {
     actionsLog.push_back(action);
 }
-Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
-{
-    for (auto &beneficiary : Beneficiaries)
-    {
-        if (beneficiary->getId() == beneficiaryId)
-        {
-            return *beneficiary;
-        }
-    }
-    throw "Beneficiary not found";
-}
-
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
     for (auto &volunteer : volunteers)
@@ -94,67 +266,4 @@ int MedicalWareHouse::getNextVolunteerId()
 {
     volunteerCounter++;
     return volunteerCounter;
-}
-
-void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
-{
-    std::ifstream configFile(configFilePath);
-    if (!configFile.is_open())
-    {
-        std::cerr << "Error: Cannot open configuration file." << std::endl;
-        return;
-    }
-
-    std::string line;
-    while (std::getline(configFile, line))
-    {
-        std::istringstream iss(line);
-        std::string type;
-        iss >> type;
-
-        if (type == "beneficiary")
-        {
-            std::string name, facilityType;
-            int locationDistance, maxRequests;
-            iss >> name >> facilityType >> locationDistance >> maxRequests;
-            int id = getNextBeneficiaryId();
-            if (facilityType == "hospital")
-            {
-                Beneficiaries.push_back(new HospitalBeneficiary(id, name, locationDistance, maxRequests));
-            }
-            else if (facilityType == "clinic")
-            {
-                Beneficiaries.push_back(new ClinicBeneficiary(id, name, locationDistance, maxRequests));
-            }
-            else
-            {
-                std::cerr << "Error: Unknown facility type " << facilityType << std::endl;
-            }
-        }
-        else if (type == "volunteer")
-        {
-            std::string name, role;
-            int cooldownOrMaxDistance, distancePerStep = 0;
-            iss >> name >> role >> cooldownOrMaxDistance;
-            if (role == "inventory" || role == "inventory_manager")
-            {
-                volunteers.push_back(new InventoryManagerVolunteer(getNextVolunteerId(), name, cooldownOrMaxDistance));
-            }
-            else if (role == "courier")
-            {
-                iss >> distancePerStep;
-                volunteers.push_back(new CourierVolunteer(getNextVolunteerId(), name, cooldownOrMaxDistance, distancePerStep));
-            }
-            else
-            {
-                std::cerr << "Error: Unknown volunteer role " << role << std::endl;
-            }
-        }
-        else
-        {
-            std::cerr << "Error: Unknown line type " << type << std::endl;
-        }
-    }
-
-    configFile.close();
 }

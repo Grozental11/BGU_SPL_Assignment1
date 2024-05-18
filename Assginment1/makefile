@@ -1,28 +1,38 @@
-CC = g++
-CFLAGS = -g -Wall -Weffc++ -std=c++11 -Iinclude
+# Compiler
+CXX = g++
 
+# Compiler flags
+CXXFLAGS = -g -Wall -Weffc++ -std=c++11 -Iinclude
+
+# Directories
 SRC_DIR = src
-INCLUDE_DIR = include
 BIN_DIR = bin
+INC_DIR = include
 
-# List of source files
+# Source files
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
-# List of object files
-OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(BIN_DIR)/%.o, $(SRCS))
+# Object files
+OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(BIN_DIR)/%.o)
 
-# Name of the executable
-TARGET = $(BIN_DIR)/warehouse
+# Executable
+EXEC = $(BIN_DIR)/warehouse
 
-.PHONY: all clean
+# Default target
+all: $(EXEC)
 
-all: $(TARGET)
+# Link object files to create the executable
+$(EXEC): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
-
+# Compile source files to object files
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+# Clean the build directory (Windows version)
 clean:
-	rm -rf $(BIN_DIR)/*.o $(TARGET)
+	if exist $(BIN_DIR)\*.o del /Q $(BIN_DIR)\*.o
+	if exist $(EXEC) del /Q $(EXEC)
+
+# Phony targets
+.PHONY: all clean

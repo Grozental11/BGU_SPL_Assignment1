@@ -26,8 +26,6 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
     }
     complete();
 }
-// HELP: I'm not sure about this function
-void SimulateStep::act(MedicalWareHouse &medWareHouse) {}
 // ATT: I'm not sure about the return value
 std::string SimulateStep::toString() const { return "SimulateStep"; }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
@@ -43,7 +41,7 @@ AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 beneficiaryType stringToBeneficiaryType(const string &type) // Added function
 {
     if (type == "hospital")
-    { 
+    {
         return beneficiaryType::Hospital;
     }
     else if (type == "clinic")

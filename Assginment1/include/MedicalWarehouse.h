@@ -25,13 +25,13 @@ public:
     void close();
     void open();
     // Added Functions
+    void initializeFromConfig(const std::string &configFilePath);
+
     int getBeneficiaryCounter() const;
     void addNewBeneficiary(Beneficiary *beneficiary); // * || & ??
     int getNextBeneficiaryId();
     int getVolunteerCounter();
     int getNextVolunteerId();
-
-    void initializeFromConfig(const string &configFilePath);
 
 private:
     bool isOpen;
