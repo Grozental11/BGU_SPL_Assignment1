@@ -11,8 +11,8 @@ enum class ActionStatus
 
 enum class beneficiaryType
 {
-    Soldier,
-    Civilian
+    Hospital, // Diff values from assignemt bucuse of teacher mistake
+    Clinic
 };
 
 class CoreAction
@@ -69,7 +69,7 @@ public:
 
 private:
     const string beneficiaryName;
-    const beneficiaryType beneficiaryType;
+    const beneficiaryType beneficiaryType_;
     const int distance;
     const int maxRequests;
 };

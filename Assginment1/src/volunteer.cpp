@@ -6,6 +6,30 @@
 using std::string;
 using std::vector;
 
+// Volunteer implementation
+Volunteer::Volunteer(int id, const string &name)
+    : id(id), name(name), activeRequestId(NO_REQUEST), completedRequestId(NO_REQUEST) {}
+int Volunteer::getId() const
+{
+    return id;
+}
+const string &Volunteer::getName() const
+{
+    return name;
+}
+int Volunteer::getActiveRequestId() const
+{
+    return activeRequestId;
+}
+int Volunteer::getCompletedRequestId() const
+{
+    return completedRequestId;
+}
+bool Volunteer::isBusy() const
+{
+    return activeRequestId != NO_REQUEST;
+}
+
 // InventoryManagerVolunteer implementation
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name, int coolDown)
     : Volunteer(id, name), coolDown(coolDown), timeLeft(0) {}

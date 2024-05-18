@@ -2,6 +2,10 @@
 #include <vector>
 #include "MedicalWarehouse.h"
 #include "Action.h"
+#include "Beneficiary.h"
+#include <stdexcept>
+#include <cstring>
+#include <stdexcept>
 
 // CoreAction
 CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
@@ -23,30 +27,72 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
     }
     complete();
 }
-// HELP: I'm not sure about this function
-void SimulateStep::act(MedicalWareHouse &medWareHouse) {}
 // ATT: I'm not sure about the return value
 std::string SimulateStep::toString() const { return "SimulateStep"; }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 
 // AddRequset
 AddRequset::AddRequset(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
-void AddRequset::act(MedicalWareHouse &medWareHouse) {}
+void AddRequset::act(MedicalWareHouse &medWareHouse)
+{
+    Beneficiary *beneficiary = &medWareHouse.getBeneficiary(beneficiaryId);
+    if (beneficiary)
+    {
+        beneficiary->addRequest(beneficiaryId); // continue from here
+        complete();
+    }
+    else
+    {
+        error("Beneficiary not found");
+    }
+}
+
 // HELP: I'm not sure about this function
 string AddRequset::toString() const { return "AddRequset"; }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 
 // RegisterBeneficiary
-RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests){
-    //Create a new Beneficiary by his type and add it to the MedicalWareHouse
-    Beneficiary *newBeneficiary;
-    
-    medWareHouse.addBeneficiary(newBeneficiary);
+beneficiaryType stringToBeneficiaryType(const string &type) // Added function
+{
+    if (type == "hospital")
+    {
+        return beneficiaryType::Hospital;
+    }
+    else if (type == "clinic")
+    {
+        return beneficiaryType::Clinic;
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid beneficiary type");
+    }
 }
+
+RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests)
+    : beneficiaryName(beneficiaryName), beneficiaryType_(stringToBeneficiaryType(beneficiaryType)), distance(distance), maxRequests(maxRequests) {}
 
 void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse)
 {
-    // Continue the funcion
+    Beneficiary *beneficiary = nullptr;
+    int newId = medWareHouse.getNextBeneficiaryId();
+
+    if (beneficiaryType_ == beneficiaryType::Hospital)
+    {
+        beneficiary = new HospitalBeneficiary(newId, beneficiaryName, distance, maxRequests);
+    }
+    else if (beneficiaryType_ == beneficiaryType::Clinic)
+    {
+        beneficiary = new ClinicBeneficiary(newId, beneficiaryName, distance, maxRequests);
+    }
+    else
+    {
+        error("Invalid beneficiary type");
+    }
+
+    if (beneficiary)
+    {
+        medWareHouse.addNewBeneficiary(beneficiary);
+    }
 }
 
 RegisterBeneficiary *RegisterBeneficiary::clone() const { return new RegisterBeneficiary(*this); }
