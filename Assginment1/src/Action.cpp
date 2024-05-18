@@ -5,6 +5,7 @@
 #include "Beneficiary.h"
 #include <stdexcept>
 #include <cstring>
+#include <stdexcept>
 
 // CoreAction
 CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
@@ -32,7 +33,20 @@ SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 
 // AddRequset
 AddRequset::AddRequset(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
-void AddRequset::act(MedicalWareHouse &medWareHouse) {}
+void AddRequset::act(MedicalWareHouse &medWareHouse)
+{
+    Beneficiary *beneficiary = &medWareHouse.getBeneficiary(beneficiaryId);
+    if (beneficiary)
+    {
+        beneficiary->addRequest(beneficiaryId); // continue from here
+        complete();
+    }
+    else
+    {
+        error("Beneficiary not found");
+    }
+}
+
 // HELP: I'm not sure about this function
 string AddRequset::toString() const { return "AddRequset"; }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
