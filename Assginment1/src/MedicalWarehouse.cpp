@@ -4,11 +4,12 @@
 #include "SupplyRequest.h"
 #include "Beneficiary.h"
 #include <MedicalWarehouse.h>
+#include "Volunteer.h"
 
 MedicalWareHouse::MedicalWareHouse(const string &configFilePath)
     : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(), beneficiaryCounter(0), volunteerCounter(0) {}
 
-//ATT: NEED TO IMPLEMENT THE START FUNCTION
+// ATT: NEED TO IMPLEMENT THE START FUNCTION
 void MedicalWareHouse::start() {}
 
 void MedicalWareHouse::addRequest(SupplyRequest *request)
@@ -31,7 +32,6 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
     }
     throw "Beneficiary not found";
 }
-#include "Volunteer.h"
 
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
@@ -72,3 +72,16 @@ SupplyRequest &MedicalWareHouse::getRequest(int requestId) const
 const vector<CoreAction *> &MedicalWareHouse::getActions() const { return actionsLog; }
 void MedicalWareHouse::close() { isOpen = false; }
 void MedicalWareHouse::open() { isOpen = true; }
+
+// Added Functions
+int MedicalWareHouse::getBeneficiaryCounter() const { return beneficiaryCounter; }
+int MedicalWareHouse::getNextBeneficiaryId()
+{
+    beneficiaryCounter++;
+    return beneficiaryCounter;
+}
+
+void MedicalWareHouse::addNewBeneficiary(Beneficiary *beneficiary)
+{
+    Beneficiaries.push_back(beneficiary);
+}

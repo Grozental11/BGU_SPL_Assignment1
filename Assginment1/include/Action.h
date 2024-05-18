@@ -11,8 +11,8 @@ enum class ActionStatus
 
 enum class beneficiaryType
 {
-    Soldier,
-    Civilian
+    Hospital, //Diff values from assignemt bucuse of teacher mistake
+    Clinic
 };
 
 class CoreAction

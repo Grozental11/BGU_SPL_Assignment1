@@ -2,6 +2,7 @@
 #include <vector>
 #include "MedicalWarehouse.h"
 #include "Action.h"
+#include "Beneficiary.h"
 
 // CoreAction
 CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
@@ -37,16 +38,30 @@ string AddRequset::toString() const { return "AddRequset"; }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 
 // RegisterBeneficiary
-RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests){
-    //Create a new Beneficiary by his type and add it to the MedicalWareHouse
-    Beneficiary *newBeneficiary;
-    
-    medWareHouse.addBeneficiary(newBeneficiary);
-}
+RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests) {}
 
 void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse)
 {
-    // Continue the funcion
+    Beneficiary *beneficiary = nullptr;
+    int newId = medWareHouse.getNextBeneficiaryId();
+
+    if (beneficiaryType == "Hospital")
+    {
+        beneficiary = new HospitalBeneficiary(newId, beneficiaryName, distance, maxRequests);
+    }
+    else if (beneficiaryType == "Clinic")
+    {
+        beneficiary = new ClinicBeneficiary(newId, beneficiaryName, distance, maxRequests);
+    }
+    else
+    {
+        error("Invalid beneficiary type");
+    }
+
+    if (beneficiary)
+    {
+        medWareHouse.addNewBeneficiary(beneficiary);
+    }
 }
 
 RegisterBeneficiary *RegisterBeneficiary::clone() const { return new RegisterBeneficiary(*this); }
