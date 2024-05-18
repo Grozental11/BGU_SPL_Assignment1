@@ -27,9 +27,11 @@ public:
     // Added Functions
     int getBeneficiaryCounter() const;
     void addNewBeneficiary(Beneficiary *beneficiary); // * || & ??
-
     int getNextBeneficiaryId();
-    // int getVolunteerCounter() const;
+    int getVolunteerCounter();
+    int getNextVolunteerId();
+
+    void initializeFromConfig(const string &configFilePath);
 
 private:
     bool isOpen;

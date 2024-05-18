@@ -1,35 +1,28 @@
-# Compiler
-CXX = g++
+CC = g++
+CFLAGS = -g -Wall -Weffc++ -std=c++11 -Iinclude
 
-# Compiler flags
-CXXFLAGS = -Wall -g -std=c++11 -Iinclude
-
-# Source, Object, and Binary directories
 SRC_DIR = src
-OBJ_DIR = bin
+INCLUDE_DIR = include
 BIN_DIR = bin
 
-# Executable name
-TARGET = $(BIN_DIR)/myprogram
+# List of source files
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
-# Find source files, define object file names
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+# List of object files
+OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(BIN_DIR)/%.o, $(SRCS))
 
-# Default target
+# Name of the executable
+TARGET = $(BIN_DIR)/warehouse
+
+.PHONY: all clean
+
 all: $(TARGET)
 
-# Rule to create the executable
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
 
-# Rule to compile C++ source to object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean up
 clean:
-	rm -f $(OBJ_DIR)/*.o $(TARGET)
-
-# Phony targets
-.PHONY: all clean
+	rm -rf $(BIN_DIR)/*.o $(TARGET)

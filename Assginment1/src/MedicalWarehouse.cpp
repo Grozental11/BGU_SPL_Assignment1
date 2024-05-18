@@ -1,5 +1,8 @@
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 #include "SupplyRequest.h"
 #include "Beneficiary.h"
@@ -84,4 +87,74 @@ int MedicalWareHouse::getNextBeneficiaryId()
 void MedicalWareHouse::addNewBeneficiary(Beneficiary *beneficiary)
 {
     Beneficiaries.push_back(beneficiary);
+}
+
+int MedicalWareHouse::getVolunteerCounter() { return volunteerCounter; }
+int MedicalWareHouse::getNextVolunteerId()
+{
+    volunteerCounter++;
+    return volunteerCounter;
+}
+
+void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
+{
+    std::ifstream configFile(configFilePath);
+    if (!configFile.is_open())
+    {
+        std::cerr << "Error: Cannot open configuration file." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(configFile, line))
+    {
+        std::istringstream iss(line);
+        std::string type;
+        iss >> type;
+
+        if (type == "beneficiary")
+        {
+            std::string name, facilityType;
+            int locationDistance, maxRequests;
+            iss >> name >> facilityType >> locationDistance >> maxRequests;
+            int id = getNextBeneficiaryId();
+            if (facilityType == "hospital")
+            {
+                Beneficiaries.push_back(new HospitalBeneficiary(id, name, locationDistance, maxRequests));
+            }
+            else if (facilityType == "clinic")
+            {
+                Beneficiaries.push_back(new ClinicBeneficiary(id, name, locationDistance, maxRequests));
+            }
+            else
+            {
+                std::cerr << "Error: Unknown facility type " << facilityType << std::endl;
+            }
+        }
+        else if (type == "volunteer")
+        {
+            std::string name, role;
+            int cooldownOrMaxDistance, distancePerStep = 0;
+            iss >> name >> role >> cooldownOrMaxDistance;
+            if (role == "inventory" || role == "inventory_manager")
+            {
+                volunteers.push_back(new InventoryManagerVolunteer(getNextVolunteerId(), name, cooldownOrMaxDistance));
+            }
+            else if (role == "courier")
+            {
+                iss >> distancePerStep;
+                volunteers.push_back(new CourierVolunteer(getNextVolunteerId(), name, cooldownOrMaxDistance, distancePerStep));
+            }
+            else
+            {
+                std::cerr << "Error: Unknown volunteer role " << role << std::endl;
+            }
+        }
+        else
+        {
+            std::cerr << "Error: Unknown line type " << type << std::endl;
+        }
+    }
+
+    configFile.close();
 }

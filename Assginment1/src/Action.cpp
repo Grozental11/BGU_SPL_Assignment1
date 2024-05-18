@@ -3,6 +3,8 @@
 #include "MedicalWarehouse.h"
 #include "Action.h"
 #include "Beneficiary.h"
+#include <stdexcept>
+#include <cstring>
 
 // CoreAction
 CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
@@ -38,18 +40,35 @@ string AddRequset::toString() const { return "AddRequset"; }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 
 // RegisterBeneficiary
-RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests) {}
+beneficiaryType stringToBeneficiaryType(const string &type) // Added function
+{
+    if (type == "hospital")
+    { 
+        return beneficiaryType::Hospital;
+    }
+    else if (type == "clinic")
+    {
+        return beneficiaryType::Clinic;
+    }
+    else
+    {
+        throw std::invalid_argument("Invalid beneficiary type");
+    }
+}
+
+RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests)
+    : beneficiaryName(beneficiaryName), beneficiaryType(stringToBeneficiaryType(beneficiaryType)), distance(distance), maxRequests(maxRequests) {}
 
 void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse)
 {
     Beneficiary *beneficiary = nullptr;
     int newId = medWareHouse.getNextBeneficiaryId();
 
-    if (beneficiaryType == "Hospital")
+    if (beneficiaryType == beneficiaryType::Hospital)
     {
         beneficiary = new HospitalBeneficiary(newId, beneficiaryName, distance, maxRequests);
     }
-    else if (beneficiaryType == "Clinic")
+    else if (beneficiaryType == beneficiaryType::Clinic)
     {
         beneficiary = new ClinicBeneficiary(newId, beneficiaryName, distance, maxRequests);
     }
