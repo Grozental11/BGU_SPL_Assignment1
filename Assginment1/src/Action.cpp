@@ -55,18 +55,18 @@ beneficiaryType stringToBeneficiaryType(const string &type) // Added function
 }
 
 RegisterBeneficiary::RegisterBeneficiary(const string &beneficiaryName, const string &beneficiaryType, int distance, int maxRequests)
-    : beneficiaryName(beneficiaryName), beneficiaryType(stringToBeneficiaryType(beneficiaryType)), distance(distance), maxRequests(maxRequests) {}
+    : beneficiaryName(beneficiaryName), beneficiaryType_(stringToBeneficiaryType(beneficiaryType)), distance(distance), maxRequests(maxRequests) {}
 
 void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse)
 {
     Beneficiary *beneficiary = nullptr;
     int newId = medWareHouse.getNextBeneficiaryId();
 
-    if (beneficiaryType == beneficiaryType::Hospital)
+    if (beneficiaryType_ == beneficiaryType::Hospital)
     {
         beneficiary = new HospitalBeneficiary(newId, beneficiaryName, distance, maxRequests);
     }
-    else if (beneficiaryType == beneficiaryType::Clinic)
+    else if (beneficiaryType_ == beneficiaryType::Clinic)
     {
         beneficiary = new ClinicBeneficiary(newId, beneficiaryName, distance, maxRequests);
     }
