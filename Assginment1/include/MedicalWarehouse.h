@@ -33,6 +33,8 @@ public:
     int getVolunteerCounter();
     int getNextVolunteerId();
 
+    int getNextRequestID(); // getting new req id and inc nextRequestID
+
 private:
     bool isOpen;
     vector<CoreAction *> actionsLog;
@@ -43,4 +45,6 @@ private:
     vector<Beneficiary *> Beneficiaries;
     int beneficiaryCounter; // For assigning unique Beneficiary IDs
     int volunteerCounter;   // For assigning unique volunteer IDs
+    // Added Variables
+    int nextRequestID = 0; // For assigning unique Request IDs
 };

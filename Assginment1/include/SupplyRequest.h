@@ -32,6 +32,7 @@ public:
 
     // My functions
     int getDistance() const;
+    SupplyRequest();
 
 private:
     const int id;

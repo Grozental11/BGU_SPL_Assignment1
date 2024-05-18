@@ -103,7 +103,7 @@ void MedicalWareHouse::start()
                     throw invalid_argument("Invalid beneficiary ID.");
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
-                requestAction->act(*this);
+                // requestAction->act(*this);
                 addAction(requestAction);
             }
             else if (actionType == "step")
@@ -133,8 +133,10 @@ void MedicalWareHouse::start()
             }
             else if (actionType == "requestStatus")
             {
+                cout << "IM HERE " << endl;
                 int requestId;
                 iss >> requestId;
+                cout << "requestId: " << requestId << endl;
                 if (iss.fail())
                 {
                     throw invalid_argument("Invalid request ID.");
@@ -208,6 +210,19 @@ void MedicalWareHouse::addAction(CoreAction *action)
 {
     actionsLog.push_back(action);
 }
+
+Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
+{
+    for (auto &beneficiary : Beneficiaries)
+    {
+        if (beneficiary->getId() == beneficiaryId)
+        {
+            return *beneficiary;
+        }
+    }
+    throw "Beneficiary not found";
+}
+
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
     for (auto &volunteer : volunteers)
@@ -221,28 +236,24 @@ Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 }
 SupplyRequest &MedicalWareHouse::getRequest(int requestId) const
 {
-    for (auto &request : pendingRequests)
+    try
     {
-        if (request->getId() == requestId)
-        {
-            return *request;
-        }
+        for (SupplyRequest *o : pendingRequests)
+            if (o->getId() == requestId)
+                return *o;
+        for (SupplyRequest *o : inProcessRequests)
+            if (o->getId() == requestId)
+                return *o;
+        for (SupplyRequest *o : completedRequests)
+            if (o->getId() == requestId)
+                return *o;
+
+        throw std::runtime_error("Request not found");
     }
-    for (auto &request : inProcessRequests)
+    catch (const std::exception &e)
     {
-        if (request->getId() == requestId)
-        {
-            return *request;
-        }
+        std::cerr << e.what() << '\n';
     }
-    for (auto &request : completedRequests)
-    {
-        if (request->getId() == requestId)
-        {
-            return *request;
-        }
-    }
-    throw "Request not found";
 }
 const vector<CoreAction *> &MedicalWareHouse::getActions() const { return actionsLog; }
 void MedicalWareHouse::close() { isOpen = false; }
@@ -266,4 +277,10 @@ int MedicalWareHouse::getNextVolunteerId()
 {
     volunteerCounter++;
     return volunteerCounter;
+}
+
+int MedicalWareHouse::getNextRequestID()
+{
+    nextRequestID++;
+    return nextRequestID;
 }

@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <cstring>
 #include <stdexcept>
+#include <iostream>
+
+using namespace std;
 
 // CoreAction
 CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
@@ -36,10 +39,15 @@ AddRequset::AddRequset(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
 void AddRequset::act(MedicalWareHouse &medWareHouse)
 {
     Beneficiary *beneficiary = &medWareHouse.getBeneficiary(beneficiaryId);
-    if (beneficiary)
+    if (beneficiary || beneficiary->canMakeRequest())
     {
-        beneficiary->addRequest(beneficiaryId); // continue from here
-        complete();
+        int requestID = medWareHouse.getNextRequestID();
+        SupplyRequest *supplyRequest = new SupplyRequest(medWareHouse.getNextRequestID(), beneficiaryId, beneficiary->getBeneficiaryDistance());
+        auto result = beneficiary->addRequest(requestID);
+        if (result == -1)
+        {
+            error("Beneficiary reached max requests");
+        }
     }
     else
     {
@@ -100,7 +108,20 @@ string RegisterBeneficiary::toString() const { return "RegisterBeneficiary"; }
 
 // PrintRequestStatus
 PrintRequestStatus::PrintRequestStatus(int requestId) : requestId(requestId) {}
-void PrintRequestStatus::act(MedicalWareHouse &medWareHouse) {}
+void PrintRequestStatus::act(MedicalWareHouse &medWareHouse)
+{
+    try
+    {
+        SupplyRequest &request = medWareHouse.getRequest(requestId);
+        std::cout << request.toString() << std::endl;
+        complete();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        this->error("Request does not exist.");
+    }
+}
 PrintRequestStatus *PrintRequestStatus::clone() const { return new PrintRequestStatus(*this); }
 string PrintRequestStatus::toString() const { return "PrintRequestStatus"; }
 
