@@ -46,5 +46,5 @@ private:
     int beneficiaryCounter; // For assigning unique Beneficiary IDs
     int volunteerCounter;   // For assigning unique volunteer IDs
     // Added Variables
-    int nextRequestID = 0; // For assigning unique Request IDs
+    int nextRequestID; // For assigning unique Request IDs
 };

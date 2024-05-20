@@ -3,6 +3,8 @@
 #include "MedicalWarehouse.h"
 #include "Action.h"
 #include "Beneficiary.h"
+#include "SupplyRequest.h"
+#include "Volunteer.h"
 #include <stdexcept>
 #include <cstring>
 #include <stdexcept>
@@ -38,12 +40,14 @@ SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 AddRequset::AddRequset(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
 void AddRequset::act(MedicalWareHouse &medWareHouse)
 {
-    Beneficiary *beneficiary = &medWareHouse.getBeneficiary(beneficiaryId);
-    if (beneficiary || beneficiary->canMakeRequest())
+    Beneficiary &beneficiary = medWareHouse.getBeneficiary(beneficiaryId);
+    if (beneficiary.canMakeRequest())
     {
         int requestID = medWareHouse.getNextRequestID();
-        SupplyRequest *supplyRequest = new SupplyRequest(medWareHouse.getNextRequestID(), beneficiaryId, beneficiary->getBeneficiaryDistance());
-        auto result = beneficiary->addRequest(requestID);
+        SupplyRequest *supplyRequest = new SupplyRequest(medWareHouse.getNextRequestID(), beneficiaryId, beneficiary.getBeneficiaryDistance());
+        std::cout << supplyRequest << std::endl;
+        auto result = beneficiary.addRequest(requestID);
+        medWareHouse.addRequest(supplyRequest);
         if (result == -1)
         {
             error("Beneficiary reached max requests");
@@ -53,6 +57,7 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
     {
         error("Beneficiary not found");
     }
+    std::cout << "Request added successfully" << std::endl;
 }
 
 // HELP: I'm not sure about this function
@@ -112,7 +117,7 @@ void PrintRequestStatus::act(MedicalWareHouse &medWareHouse)
 {
     try
     {
-        SupplyRequest &request = medWareHouse.getRequest(requestId);
+        SupplyRequest request = medWareHouse.getRequest(requestId);
         std::cout << request.toString() << std::endl;
         complete();
     }
@@ -133,7 +138,14 @@ string PrintBeneficiaryStatus::toString() const { return "PrintBeneficiaryStatus
 
 // PrintVolunteerStatus
 PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}
-void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse) {}
+void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse)
+{
+    std::cout << "PrintVolunteerStatus::act volunteerId - " << volunteerId << std::endl;
+    Volunteer &vol = medWareHouse.getVolunteer(volunteerId);
+    std::cout << "Found Volunteer" << std::endl;
+    std::cout << vol.toString() << std::endl;
+    complete();
+}
 PrintVolunteerStatus *PrintVolunteerStatus::clone() const { return new PrintVolunteerStatus(*this); }
 string PrintVolunteerStatus::toString() const { return "PrintVolunteerStatus"; }
 

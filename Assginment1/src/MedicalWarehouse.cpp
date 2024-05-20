@@ -13,7 +13,7 @@
 using namespace std;
 
 MedicalWareHouse::MedicalWareHouse(const string &configFilePath)
-    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(), beneficiaryCounter(0), volunteerCounter(0)
+    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(0), beneficiaryCounter(-1), volunteerCounter(0), nextRequestID(-1)
 {
     initializeFromConfig(configFilePath);
 }
@@ -39,27 +39,35 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
             {
                 HospitalBeneficiary *hospitalBeneficiary = new HospitalBeneficiary(getNextBeneficiaryId(), name, distance, maxRequests);
                 addNewBeneficiary(hospitalBeneficiary);
+                std::cout << "Adding hospital beneficiary: " << hospitalBeneficiary->getId() << ", " << hospitalBeneficiary->getName() << std::endl;
             }
             else if (type == "clinic")
             {
                 ClinicBeneficiary *clinicBeneficiary = new ClinicBeneficiary(getNextBeneficiaryId(), name, distance, maxRequests);
                 addNewBeneficiary(clinicBeneficiary);
+                std::cout << "Adding clinic beneficiary: " << clinicBeneficiary->getId() << ", " << clinicBeneficiary->getName() << std::endl;
             }
         }
         else if (firstWord == "volunteer")
         {
-            iss >> name >> type;
-            if (type == "inventory_manager")
+            // iss >> name >> type;
+            getline(iss, name, ' ');                           // Read until first space (name)
+            getline(iss, type, ' ');                           // Read the rest of the line (type)
+            type = type.substr(type.find_first_not_of(" \t")); // Trim leading whitespace from type
+            std::cout << "Volunteer type: " << type << std::endl;
+            if (type == "inventory manager")
             {
                 iss >> coolDown;
                 InventoryManagerVolunteer *inventoryManagerVolunteer = new InventoryManagerVolunteer(getNextVolunteerId(), name, coolDown);
                 volunteers.push_back(inventoryManagerVolunteer);
+                std::cout << "Adding inventory manager: " << inventoryManagerVolunteer->getId() << ", " << inventoryManagerVolunteer->getName() << std::endl;
             }
             else if (type == "courier")
             {
                 iss >> maxDistance >> distancePerStep;
                 CourierVolunteer *courierVolunteer = new CourierVolunteer(getNextVolunteerId(), name, maxDistance, distancePerStep);
                 volunteers.push_back(courierVolunteer);
+                std::cout << "Adding courier: " << courierVolunteer->getId() << ", " << courierVolunteer->getName() << std::endl;
             }
         }
         firstWord.clear();
@@ -103,8 +111,8 @@ void MedicalWareHouse::start()
                     throw invalid_argument("Invalid beneficiary ID.");
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
-                // requestAction->act(*this);
-                addAction(requestAction);
+                requestAction->act(*this);
+                // addAction(requestAction);
             }
             else if (actionType == "step")
             {
@@ -133,7 +141,6 @@ void MedicalWareHouse::start()
             }
             else if (actionType == "requestStatus")
             {
-                cout << "IM HERE " << endl;
                 int requestId;
                 iss >> requestId;
                 cout << "requestId: " << requestId << endl;
@@ -143,7 +150,7 @@ void MedicalWareHouse::start()
                 }
                 PrintRequestStatus *printRequestStatusAction = new PrintRequestStatus(requestId);
                 printRequestStatusAction->act(*this);
-                addAction(printRequestStatusAction);
+                // addAction(printRequestStatusAction);
             }
             else if (actionType == "beneficiaryStatus")
             {
@@ -217,10 +224,11 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
     {
         if (beneficiary->getId() == beneficiaryId)
         {
+            std::cout << "Found beneficiary" << std::endl;
             return *beneficiary;
         }
     }
-    throw "Beneficiary not found";
+    throw std::runtime_error("Beneficiary not found");
 }
 
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
@@ -229,31 +237,28 @@ Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
     {
         if (volunteer->getId() == volunteerId)
         {
+            std::cout << "Found Volunteer" << std::endl;
             return *volunteer;
         }
     }
-    throw "Volunteer not found";
+    throw std::runtime_error("Volunteer not found");
 }
 SupplyRequest &MedicalWareHouse::getRequest(int requestId) const
 {
-    try
+    for (SupplyRequest *o : pendingRequests)
     {
-        for (SupplyRequest *o : pendingRequests)
-            if (o->getId() == requestId)
-                return *o;
-        for (SupplyRequest *o : inProcessRequests)
-            if (o->getId() == requestId)
-                return *o;
-        for (SupplyRequest *o : completedRequests)
-            if (o->getId() == requestId)
-                return *o;
+        std::cout << "Pending Request ID: " << o->getId() << std::endl;
+        if (o->getId() == requestId)
+            return *o;
+    }
+    for (SupplyRequest *o : inProcessRequests)
+        if (o->getId() == requestId)
+            return *o;
+    for (SupplyRequest *o : completedRequests)
+        if (o->getId() == requestId)
+            return *o;
 
-        throw std::runtime_error("Request not found");
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    throw std::runtime_error("Request not found");
 }
 const vector<CoreAction *> &MedicalWareHouse::getActions() const { return actionsLog; }
 void MedicalWareHouse::close() { isOpen = false; }
@@ -263,24 +268,24 @@ void MedicalWareHouse::open() { isOpen = true; }
 int MedicalWareHouse::getBeneficiaryCounter() const { return beneficiaryCounter; }
 int MedicalWareHouse::getNextBeneficiaryId()
 {
-    beneficiaryCounter++;
+    ++beneficiaryCounter;
     return beneficiaryCounter;
 }
 
 void MedicalWareHouse::addNewBeneficiary(Beneficiary *beneficiary)
 {
     Beneficiaries.push_back(beneficiary);
+    std::cout << "Beneficiarie added" << std::endl;
 }
 
 int MedicalWareHouse::getVolunteerCounter() { return volunteerCounter; }
 int MedicalWareHouse::getNextVolunteerId()
 {
-    volunteerCounter++;
+    ++volunteerCounter;
     return volunteerCounter;
 }
 
 int MedicalWareHouse::getNextRequestID()
 {
-    nextRequestID++;
-    return nextRequestID;
+    return nextRequestID++;
 }

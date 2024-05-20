@@ -2,6 +2,7 @@
 #include <vector>
 #include <SupplyRequest.h>
 #include <Volunteer.h>
+#include <sstream>
 #include <iostream>
 using std::string;
 using std::vector;
@@ -85,7 +86,14 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request)
 // ATT: I'm not sure of the format of the string, need to verify
 string InventoryManagerVolunteer::toString() const
 {
-    return "InventoryManagerVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+    std::cout << "InventoryManagerVolunteer::toString" << std::endl;
+    std::ostringstream oss;
+    oss << "Volunteer ID: " << getId() << "\n";
+    oss << "Name: " << getName() << "\n";
+    oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
+    oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
+    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()) : "None") << "\n";
+    return oss.str();
 }
 
 // CourierVolunteer implementation
