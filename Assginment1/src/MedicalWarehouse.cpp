@@ -13,7 +13,7 @@
 using namespace std;
 
 MedicalWareHouse::MedicalWareHouse(const string &configFilePath)
-    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(0), beneficiaryCounter(-1), volunteerCounter(0), nextRequestID(0)
+    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(0), beneficiaryCounter(-1), volunteerCounter(-1), nextRequestID(0)
 {
     initializeFromConfig(configFilePath);
 }
@@ -50,11 +50,18 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
         }
         else if (firstWord == "volunteer")
         {
-            // iss >> name >> type;
-            getline(iss, name, ' ');                           // Read until first space (name)
-            getline(iss, type, ' ');                           // Read the rest of the line (type)
-            type = type.substr(type.find_first_not_of(" \t")); // Trim leading whitespace from type
-            std::cout << "Volunteer type: " << type << std::endl;
+            // volunteer Monica inventory manager 2 4 
+            // volunteer Chandler courier 7 4
+            std::string type1, type2;
+            iss >> name >> type1 >> type2;
+            if(type2 == "manager"){
+                type = "inventory manager";
+            }else{
+                if(type1 == "courier")
+                    type = "courier";
+            }// need to add checks for invalid input
+
+            std::cout << "Name: " << name << " type: " << type << std::endl;
             if (type == "inventory manager")
             {
                 iss >> coolDown;
@@ -143,7 +150,6 @@ void MedicalWareHouse::start()
             {
                 int requestId;
                 iss >> requestId;
-                cout << "requestId: " << requestId << endl;
                 if (iss.fail())
                 {
                     throw invalid_argument("Invalid request ID.");
@@ -168,13 +174,13 @@ void MedicalWareHouse::start()
             {
                 int volunteerId;
                 iss >> volunteerId;
-                if (iss.fail())
+                if (iss.fail()) //need to add more checks
                 {
                     throw invalid_argument("Invalid volunteer ID.");
                 }
                 PrintVolunteerStatus *printVolunteerStatusAction = new PrintVolunteerStatus(volunteerId);
                 printVolunteerStatusAction->act(*this);
-                addAction(printVolunteerStatusAction);
+                //addAction(printVolunteerStatusAction);
             }
             else if (actionType == "log")
             {
@@ -233,24 +239,24 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
 
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
-    for (auto &volunteer : volunteers)
+    for (Volunteer *volunteer : volunteers)
     {
+        //std::cout << volunteer << std::endl;
+        //std::cout << "Volunteer ID - " << volunteer->getId() << std::endl;
         if (volunteer->getId() == volunteerId)
         {
-            std::cout << "Found Volunteer" << std::endl;
+            std::cout << "Found Volunteer in MedicalWareHouse" << std::endl;
             return *volunteer;
         }
     }
     throw std::runtime_error("Volunteer not found");
 }
+
 SupplyRequest &MedicalWareHouse::getRequest(int requestId) const
 {
     for (SupplyRequest *o : pendingRequests)
-    {
-        std::cout << "Pending Request ID: " << o->getId() << std::endl;
         if (o->getId() == requestId)
             return *o;
-    }
     for (SupplyRequest *o : inProcessRequests)
         if (o->getId() == requestId)
             return *o;

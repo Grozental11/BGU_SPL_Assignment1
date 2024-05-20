@@ -86,7 +86,6 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request)
 // ATT: I'm not sure of the format of the string, need to verify
 string InventoryManagerVolunteer::toString() const
 {
-    std::cout << "InventoryManagerVolunteer::toString" << std::endl;
     std::ostringstream oss;
     oss << "Volunteer ID: " << getId() << "\n";
     oss << "Name: " << getName() << "\n";
