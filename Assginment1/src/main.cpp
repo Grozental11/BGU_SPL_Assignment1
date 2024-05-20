@@ -7,7 +7,7 @@ MedicalWareHouse *backup = nullptr;
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) // ./bin/warehouse /Assginment1/configFile.txt
+    if (argc != 2) // ./bin/warehouse ./configFile.txt
     {
         std::cout << "usage: warehouse <config_path>" << std::endl;
         return 0;

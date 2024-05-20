@@ -13,7 +13,7 @@
 using namespace std;
 
 MedicalWareHouse::MedicalWareHouse(const string &configFilePath)
-    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(0), beneficiaryCounter(-1), volunteerCounter(0), nextRequestID(-1)
+    : isOpen(true), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(0), beneficiaryCounter(-1), volunteerCounter(0), nextRequestID(0)
 {
     initializeFromConfig(configFilePath);
 }

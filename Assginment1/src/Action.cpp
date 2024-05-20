@@ -44,7 +44,8 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
     if (beneficiary.canMakeRequest())
     {
         int requestID = medWareHouse.getNextRequestID();
-        SupplyRequest *supplyRequest = new SupplyRequest(medWareHouse.getNextRequestID(), beneficiaryId, beneficiary.getBeneficiaryDistance());
+        std::cout << requestID << std::endl;
+        SupplyRequest *supplyRequest = new SupplyRequest(requestID, beneficiaryId, beneficiary.getBeneficiaryDistance());
         std::cout << supplyRequest << std::endl;
         auto result = beneficiary.addRequest(requestID);
         medWareHouse.addRequest(supplyRequest);
