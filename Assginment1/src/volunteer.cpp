@@ -2,9 +2,34 @@
 #include <vector>
 #include <SupplyRequest.h>
 #include <Volunteer.h>
+#include <sstream>
 #include <iostream>
 using std::string;
 using std::vector;
+
+// Volunteer implementation
+Volunteer::Volunteer(int id, const string &name)
+    : id(id), name(name), activeRequestId(NO_REQUEST), completedRequestId(NO_REQUEST) {}
+int Volunteer::getId() const
+{
+    return id;
+}
+const string &Volunteer::getName() const
+{
+    return name;
+}
+int Volunteer::getActiveRequestId() const
+{
+    return activeRequestId;
+}
+int Volunteer::getCompletedRequestId() const
+{
+    return completedRequestId;
+}
+bool Volunteer::isBusy() const
+{
+    return activeRequestId != NO_REQUEST;
+}
 
 // InventoryManagerVolunteer implementation
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name, int coolDown)
@@ -61,7 +86,14 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request)
 // ATT: I'm not sure of the format of the string, need to verify
 string InventoryManagerVolunteer::toString() const
 {
-    return "InventoryManagerVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+    std::cout << "InventoryManagerVolunteer::toString" << std::endl;
+    std::ostringstream oss;
+    oss << "Volunteer ID: " << getId() << "\n";
+    oss << "Name: " << getName() << "\n";
+    oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
+    oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
+    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()) : "None") << "\n";
+    return oss.str();
 }
 
 // CourierVolunteer implementation

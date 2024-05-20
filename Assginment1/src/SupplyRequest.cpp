@@ -1,10 +1,14 @@
+#include <iostream>
 #include "SupplyRequest.h"
 #include <string>
+#include <sstream>
 #include <vector>
-using std::string;
-using std::vector;
+
+using namespace std;
 
 // SupplyRequest implementation
+SupplyRequest::SupplyRequest() : id(-1), beneficiaryId(-1), distance(-1), status(RequestStatus::PENDING), inventoryManagerId(NO_VOLUNTEER), CourierId(NO_VOLUNTEER) {}
+
 SupplyRequest::SupplyRequest(int id, int beneficiaryId, int distance)
     : id(id), beneficiaryId(beneficiaryId), distance(distance), status(RequestStatus::PENDING), inventoryManagerId(NO_VOLUNTEER), CourierId(NO_VOLUNTEER) {}
 int SupplyRequest::getId() const { return id; }
@@ -33,23 +37,48 @@ int SupplyRequest::getCourierId() const { return CourierId; }
 RequestStatus SupplyRequest::getStatus() const { return status; }
 const std::string SupplyRequest::toString() const
 {
-    string statusString;
-    switch (status)
+    std::ostringstream oss;
+    oss << "Request ID: " << getId() << "\n";
+    oss << "Status: ";
+
+    switch (getStatus())
     {
     case RequestStatus::PENDING:
-        statusString = "PENDING";
+        oss << "Pending";
         break;
     case RequestStatus::COLLECTING:
-        statusString = "COLLECTING";
+        oss << "Collecting";
         break;
     case RequestStatus::ON_THE_WAY:
-        statusString = "ON_THE_WAY";
+        oss << "On the Way";
         break;
     case RequestStatus::DONE:
-        statusString = "DONE";
+        oss << "Done";
         break;
     }
-    return "SupplyRequest{id=" + std::to_string(id) + ", beneficiaryId=" + std::to_string(beneficiaryId) + ", distance=" + std::to_string(distance) + ", status=" + statusString + ", inventoryManagerId=" + std::to_string(inventoryManagerId) + ", CourierId=" + std::to_string(CourierId) + "}";
+    oss << "\n";
+
+    oss << "Beneficiary ID: " << getBeneficiaryId() << "\n";
+
+    if (getInventoryManagerId() != NO_VOLUNTEER)
+    {
+        oss << "Inventory Manager: " << getInventoryManagerId() << "\n";
+    }
+    else
+    {
+        oss << "Inventory Manager: None" << "\n";
+    }
+
+    if (getCourierId() != NO_VOLUNTEER)
+    {
+        oss << "Courier: " << getCourierId() << "\n";
+    }
+    else
+    {
+        oss << "Courier: None" << "\n";
+    }
+
+    return oss.str();
 }
 
 // My functions
