@@ -133,7 +133,12 @@ string PrintRequestStatus::toString() const { return "PrintRequestStatus"; }
 
 // PrintBeneficiaryStatus
 PrintBeneficiaryStatus::PrintBeneficiaryStatus(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
-void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse) {}
+void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse) {
+    std::cout << "PrintBeneficiaryStatus::act " << beneficiaryId << std::endl;
+    Beneficiary &ben = medWareHouse.getBeneficiary(beneficiaryId);
+    std::cout << ben.toString() << std::endl;
+    // complete();
+}
 PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const { return new PrintBeneficiaryStatus(*this); }
 string PrintBeneficiaryStatus::toString() const { return "PrintBeneficiaryStatus"; }
 

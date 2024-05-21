@@ -20,6 +20,10 @@ public:
 
     virtual Beneficiary *clone() const = 0; // Return a copy of the Beneficiary
 
+    // Added function
+    const string toString() const;
+
+
 private:
     const int id;
     const string name;

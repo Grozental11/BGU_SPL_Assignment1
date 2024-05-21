@@ -1,6 +1,7 @@
 #include <Beneficiary.h>
 #include <string>
 #include <vector>
+#include <sstream>
 using std::string;
 using std::vector;
 
@@ -24,6 +25,25 @@ int Beneficiary::addRequest(int RequestId)
     }
     requestsId.push_back(RequestId);
     return RequestId;
+}
+
+
+// Added function to Beneficiary class
+const std::string Beneficiary::toString() const{
+    std::ostringstream oss;
+    oss << "Beneficiary ID: " << getId() << "\n";
+    oss << "Name: " << getName() << "\n"; //del
+    oss << "Location Distance: " << getBeneficiaryDistance() << "\n"; //del
+    oss << "Max Requests: " << getMaxRequests() << "\n"; //del
+    oss << "Number of Requests: " << getNumRequests() << "\n"; //del
+    for (auto &requestId : getRequestsIds()) // need to add the full info of each request
+    {
+        oss << "Request ID: " << requestId << "\n";
+        oss << "Request Status: " << "\n"; // need to add the status of the request
+    }
+    oss << "Requests Left " << getMaxRequests() - getNumRequests() << "\n";
+    return oss.str();
+
 }
 
 // HospitalBeneficiary implementation
