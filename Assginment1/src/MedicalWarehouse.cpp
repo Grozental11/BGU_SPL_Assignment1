@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+#include <stdexcept>
 
 #include "SupplyRequest.h"
 #include "Beneficiary.h"
@@ -50,16 +52,19 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
         }
         else if (firstWord == "volunteer")
         {
-            // volunteer Monica inventory manager 2 4 
+            // volunteer Monica inventory manager 2 4
             // volunteer Chandler courier 7 4
             std::string type1, type2;
             iss >> name >> type1 >> type2;
-            if(type2 == "manager"){
+            if (type2 == "manager")
+            {
                 type = "inventory manager";
-            }else{
-                if(type1 == "courier")
+            }
+            else
+            {
+                if (type1 == "courier")
                     type = "courier";
-            }// need to add checks for invalid input
+            } // need to add checks for invalid input
 
             std::cout << "Name: " << name << " type: " << type << std::endl;
             if (type == "inventory manager")
@@ -174,13 +179,13 @@ void MedicalWareHouse::start()
             {
                 int volunteerId;
                 iss >> volunteerId;
-                if (iss.fail()) //need to add more checks
+                if (iss.fail()) // need to add more checks
                 {
                     throw invalid_argument("Invalid volunteer ID.");
                 }
                 PrintVolunteerStatus *printVolunteerStatusAction = new PrintVolunteerStatus(volunteerId);
                 printVolunteerStatusAction->act(*this);
-                //addAction(printVolunteerStatusAction);
+                // addAction(printVolunteerStatusAction);
             }
             else if (actionType == "log")
             {
@@ -241,8 +246,8 @@ Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
     for (Volunteer *volunteer : volunteers)
     {
-        //std::cout << volunteer << std::endl;
-        //std::cout << "Volunteer ID - " << volunteer->getId() << std::endl;
+        // std::cout << volunteer << std::endl;
+        // std::cout << "Volunteer ID - " << volunteer->getId() << std::endl;
         if (volunteer->getId() == volunteerId)
         {
             std::cout << "Found Volunteer in MedicalWareHouse" << std::endl;
@@ -294,4 +299,79 @@ int MedicalWareHouse::getNextVolunteerId()
 int MedicalWareHouse::getNextRequestID()
 {
     return nextRequestID++;
+}
+
+std::vector<SupplyRequest *> &MedicalWareHouse::getPendingRequests()
+{
+    return pendingRequests;
+}
+
+std::vector<SupplyRequest *> &MedicalWareHouse::getInProcessRequests()
+{
+    return inProcessRequests;
+}
+
+std::vector<SupplyRequest *> &MedicalWareHouse::getCompletedRequests()
+{
+    return completedRequests;
+}
+
+std::vector<Volunteer *> &MedicalWareHouse::getVolunteers()
+{
+    return volunteers;
+}
+
+bool MedicalWareHouse::isInPending(SupplyRequest *request)
+{
+    if (std::find(pendingRequests.begin(), pendingRequests.end(), request) != pendingRequests.end())
+        return true;
+    return false;
+}
+
+void MedicalWareHouse::moveRequestToPending(SupplyRequest *request)
+{
+    if (!isInPending(request))
+    {
+        pendingRequests.push_back(request);
+        auto inProcessIt = std::find(inProcessRequests.begin(), inProcessRequests.end(), request);
+        if (inProcessIt != inProcessRequests.end())
+        {
+            inProcessRequests.erase(inProcessIt);
+        }
+
+        auto completedIt = std::find(completedRequests.begin(), completedRequests.end(), request);
+        if (completedIt != completedRequests.end())
+        {
+            completedRequests.erase(completedIt);
+        }
+        request->setStatus(RequestStatus::PENDING);
+    }
+}
+
+void MedicalWareHouse::moveRequestToInProcess(SupplyRequest *request)
+{
+    auto it = std::find(pendingRequests.begin(), pendingRequests.end(), request);
+    if (it != pendingRequests.end())
+    {
+        inProcessRequests.push_back(request);
+        pendingRequests.erase(it);
+    }
+    else
+    {
+        throw std::runtime_error("Request not found in pending requests");
+    }
+}
+
+void MedicalWareHouse::moveRequestToCompleted(SupplyRequest *request)
+{
+    auto it = std::find(inProcessRequests.begin(), inProcessRequests.end(), request);
+    if (it != inProcessRequests.end())
+    {
+        completedRequests.push_back(request);
+        inProcessRequests.erase(it);
+    }
+    else
+    {
+        throw std::runtime_error("Request not found in in-process requests");
+    }
 }

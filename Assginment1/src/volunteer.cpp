@@ -144,8 +144,9 @@ void CourierVolunteer::step()
         distanceLeft -= distancePerStep;
         if (distanceLeft <= 0)
         {
+            distanceLeft = 0;
             completedRequestId = activeRequestId;
-            activeRequestId = NO_REQUEST;
+            // activeRequestId = NO_REQUEST;
         }
     }
 }
@@ -154,4 +155,9 @@ void CourierVolunteer::step()
 string CourierVolunteer::toString() const
 {
     return "CourierVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+}
+
+void Volunteer::setNoActiveRequest()
+{
+    activeRequestId = NO_REQUEST;
 }

@@ -32,8 +32,17 @@ public:
     int getNextBeneficiaryId();
     int getVolunteerCounter();
     int getNextVolunteerId();
-
     int getNextRequestID(); // getting new req id and inc nextRequestID
+
+    std::vector<SupplyRequest *> &getPendingRequests();
+    std::vector<SupplyRequest *> &getInProcessRequests();
+    std::vector<SupplyRequest *> &getCompletedRequests();
+    std::vector<Volunteer *> &getVolunteers();
+    bool isInPending(SupplyRequest *request);
+    void moveRequestToPending(SupplyRequest *request);
+    void moveRequestToInProcess(SupplyRequest* request);
+    void moveRequestToCompleted(SupplyRequest* request);
+
 
 private:
     bool isOpen;

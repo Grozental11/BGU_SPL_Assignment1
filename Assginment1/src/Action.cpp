@@ -23,11 +23,68 @@ string CoreAction::getErrorMsg() const { return errorMsg; }
 SimulateStep::SimulateStep(int numOfSteps) : numOfSteps(numOfSteps) {}
 void SimulateStep::act(MedicalWareHouse &medWareHouse)
 {
-    for (int i = 0; i < numOfSteps; i++)
+    for (int step = 0; step < numOfSteps; ++step)
     {
-        for (auto &action : medWareHouse.getActions())
+        auto &pendingRequests = medWareHouse.getPendingRequests();
+        for (auto &request : pendingRequests)
         {
-            action->act(medWareHouse);
+            if (request->getStatus() == RequestStatus::PENDING)
+            {
+                for (auto &volunteer : medWareHouse.getVolunteers())
+                {
+                    if (auto *inventoryManager = dynamic_cast<InventoryManagerVolunteer *>(volunteer))
+                    {
+                        if (!inventoryManager->isBusy() && inventoryManager->canTakeRequest(*request))
+                        {
+                            inventoryManager->acceptRequest(*request);
+                            request->setStatus(RequestStatus::COLLECTING);
+                            request->setInventoryManagerId(inventoryManager->getId());
+                            medWareHouse.moveRequestToInProcess(request);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        for (auto &volunteer : medWareHouse.getVolunteers())
+        {
+            volunteer->step();
+        }
+        auto &inProcessRequests = medWareHouse.getInProcessRequests();
+        for (auto &request : inProcessRequests)
+        {
+            if (request->getStatus() == RequestStatus::COLLECTING)
+            {
+                auto &inventoryManager = medWareHouse.getVolunteer(request->getInventoryManagerId());
+                if (!inventoryManager.isBusy())
+                {
+                    for (auto &volunteer : medWareHouse.getVolunteers())
+                    {
+                        if (auto *courier = dynamic_cast<CourierVolunteer *>(volunteer))
+                        {
+                            if (!courier->isBusy() && courier->canTakeRequest(*request))
+                            {
+                                courier->acceptRequest(*request);
+                                request->setStatus(RequestStatus::ON_THE_WAY);
+                                request->setCourierId(courier->getId());
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (auto &request : inProcessRequests)
+        {
+            if (request->getStatus() == RequestStatus::ON_THE_WAY)
+            {
+                auto &courier = medWareHouse.getVolunteer(request->getCourierId());
+                if (!courier.isBusy())
+                {
+                    request->setStatus(RequestStatus::DONE);
+                    medWareHouse.moveRequestToCompleted(request);
+                }
+            }
         }
     }
     complete();
@@ -133,7 +190,8 @@ string PrintRequestStatus::toString() const { return "PrintRequestStatus"; }
 
 // PrintBeneficiaryStatus
 PrintBeneficiaryStatus::PrintBeneficiaryStatus(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
-void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse) {
+void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse)
+{
     std::cout << "PrintBeneficiaryStatus::act " << beneficiaryId << std::endl;
     Beneficiary &ben = medWareHouse.getBeneficiary(beneficiaryId);
     std::cout << ben.toString() << std::endl;
@@ -146,9 +204,9 @@ string PrintBeneficiaryStatus::toString() const { return "PrintBeneficiaryStatus
 PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}
 void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse)
 {
-    //std::cout << "PrintVolunteerStatus::act " << volunteerId << std::endl;
+    // std::cout << "PrintVolunteerStatus::act " << volunteerId << std::endl;
     Volunteer &vol = medWareHouse.getVolunteer(volunteerId);
-    //std::cout << "Found Volunteer" << std::endl;
+    // std::cout << "Found Volunteer" << std::endl;
     std::cout << vol.toString() << std::endl;
     // complete();
 }

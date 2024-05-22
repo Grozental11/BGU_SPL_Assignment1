@@ -23,6 +23,8 @@ class Volunteer {
         virtual string toString() const = 0;
         virtual Volunteer* clone() const = 0; //Return a copy of the volunteer
 
+        void setNoActiveRequest(); //Set activeRequestId to NO_REQUEST
+
     protected:
         int completedRequestId; //Initialized to NO_Request if no Request has been completed yet
         int activeRequestId; //Initialized to NO_Request if no Request is being processed
