@@ -56,30 +56,35 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
             // volunteer Chandler courier 7 4
             std::string type1, type2;
             iss >> name >> type1 >> type2;
-            if (type2 == "manager")
+            if (type1 == "inventory")
             {
                 type = "inventory manager";
             }
             else
             {
                 if (type1 == "courier")
+                {
                     type = "courier";
+                }
             } // need to add checks for invalid input
 
-            std::cout << "Name: " << name << " type: " << type << std::endl;
+            // std::cout << "Name: " << name << " type: " << type << std::endl;
             if (type == "inventory manager")
             {
                 iss >> coolDown;
+                std::cout << "Cool Down: " << coolDown << std::endl;
                 InventoryManagerVolunteer *inventoryManagerVolunteer = new InventoryManagerVolunteer(getNextVolunteerId(), name, coolDown);
                 volunteers.push_back(inventoryManagerVolunteer);
                 std::cout << "Adding inventory manager: " << inventoryManagerVolunteer->getId() << ", " << inventoryManagerVolunteer->getName() << std::endl;
             }
             else if (type == "courier")
             {
-                iss >> maxDistance >> distancePerStep;
+                maxDistance = std::stoi(type2); // Convert type2 to an integer
+                iss >> distancePerStep;
+                std::cout << "Max Distance: " << maxDistance << " Distance Per Step: " << distancePerStep << std::endl;
                 CourierVolunteer *courierVolunteer = new CourierVolunteer(getNextVolunteerId(), name, maxDistance, distancePerStep);
                 volunteers.push_back(courierVolunteer);
-                std::cout << "Adding courier: " << courierVolunteer->getId() << ", " << courierVolunteer->getName() << std::endl;
+                std::cout << "Adding courier: " << courierVolunteer->getId() << ", " << courierVolunteer->getName() << courierVolunteer->getDistancePerStep() << std::endl;
             }
         }
         firstWord.clear();
@@ -128,6 +133,7 @@ void MedicalWareHouse::start()
             }
             else if (actionType == "step")
             {
+                std::cout << "Simulating step" << std::endl;
                 int steps;
                 iss >> steps;
                 if (iss.fail() || steps <= 0)
@@ -223,7 +229,17 @@ void MedicalWareHouse::start()
         }
     }
 }
-void MedicalWareHouse::addRequest(SupplyRequest *request) { pendingRequests.push_back(request); }
+void MedicalWareHouse::addRequest(SupplyRequest *request)
+{
+    if (request->getStatus() == RequestStatus::PENDING)
+        pendingRequests.push_back(request);
+    else if (request->getStatus() == RequestStatus::COLLECTING)
+        inProcessRequests.push_back(request);
+    else if (request->getStatus() == RequestStatus::DONE)
+        completedRequests.push_back(request);
+    else
+        throw std::runtime_error("Unable to add request to the warehouse. Invalid status.");
+}
 void MedicalWareHouse::addAction(CoreAction *action)
 {
     actionsLog.push_back(action);
@@ -373,5 +389,29 @@ void MedicalWareHouse::moveRequestToCompleted(SupplyRequest *request)
     else
     {
         throw std::runtime_error("Request not found in in-process requests");
+    }
+}
+
+void MedicalWareHouse::eraseFromPending(SupplyRequest *request)
+{
+    if (std::find(pendingRequests.begin(), pendingRequests.end(), request) != pendingRequests.end())
+        pendingRequests.erase(std::remove(pendingRequests.begin(), pendingRequests.end(), request), pendingRequests.end());
+}
+
+void MedicalWareHouse::setRequest(SupplyRequest *request)
+{
+    if (std::find(inProcessRequests.begin(), inProcessRequests.end(), request) != inProcessRequests.end())
+    {
+        if (request->getStatus() == RequestStatus::COLLECTING)
+        {
+            inProcessRequests.erase(std::remove(inProcessRequests.begin(), inProcessRequests.end(), request), inProcessRequests.end());
+            pendingRequests.push_back(request);
+        }
+        else if (request->getStatus() == RequestStatus::ON_THE_WAY)
+        {
+            inProcessRequests.erase(std::remove(inProcessRequests.begin(), inProcessRequests.end(), request), inProcessRequests.end());
+            completedRequests.push_back(request);
+            request->setStatus(RequestStatus::DONE);
+        }
     }
 }

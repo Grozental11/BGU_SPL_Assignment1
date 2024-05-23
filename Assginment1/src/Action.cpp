@@ -21,74 +21,85 @@ string CoreAction::getErrorMsg() const { return errorMsg; }
 
 // SimulateStep
 SimulateStep::SimulateStep(int numOfSteps) : numOfSteps(numOfSteps) {}
+
 void SimulateStep::act(MedicalWareHouse &medWareHouse)
 {
-    for (int step = 0; step < numOfSteps; ++step)
+    for (int i = 0; i < numOfSteps; i++)
     {
-        auto &pendingRequests = medWareHouse.getPendingRequests();
-        for (auto &request : pendingRequests)
+        std::cout << "Step " << i << std::endl;
+
+        // Step 1: Assign pending requests to available Inventory Managers
+        for (SupplyRequest *supplyRequest : medWareHouse.getPendingRequests())
         {
-            if (request->getStatus() == RequestStatus::PENDING)
+            if (supplyRequest->getStatus() == RequestStatus::PENDING)
             {
-                for (auto &volunteer : medWareHouse.getVolunteers())
+                for (Volunteer *v : medWareHouse.getVolunteers())
                 {
-                    if (auto *inventoryManager = dynamic_cast<InventoryManagerVolunteer *>(volunteer))
+                    if (auto *inventoryManager = dynamic_cast<InventoryManagerVolunteer *>(v))
                     {
-                        if (!inventoryManager->isBusy() && inventoryManager->canTakeRequest(*request))
+                        if (inventoryManager->canTakeRequest(*supplyRequest))
                         {
-                            inventoryManager->acceptRequest(*request);
-                            request->setStatus(RequestStatus::COLLECTING);
-                            request->setInventoryManagerId(inventoryManager->getId());
-                            medWareHouse.moveRequestToInProcess(request);
+                            inventoryManager->acceptRequest(*supplyRequest);
+                            supplyRequest->setStatus(RequestStatus::COLLECTING);
+                            supplyRequest->setInventoryManagerId(inventoryManager->getId());
+                            medWareHouse.moveRequestToInProcess(supplyRequest);
                             break;
                         }
                     }
                 }
             }
         }
-        for (auto &volunteer : medWareHouse.getVolunteers())
+
+        // Step 2: Assign collecting requests to available Couriers
+        for (SupplyRequest *supplyRequest : medWareHouse.getInProcessRequests())
         {
-            volunteer->step();
-        }
-        auto &inProcessRequests = medWareHouse.getInProcessRequests();
-        for (auto &request : inProcessRequests)
-        {
-            if (request->getStatus() == RequestStatus::COLLECTING)
+            if (supplyRequest->getStatus() == RequestStatus::COLLECTING)
             {
-                auto &inventoryManager = medWareHouse.getVolunteer(request->getInventoryManagerId());
-                if (!inventoryManager.isBusy())
+                for (Volunteer *v : medWareHouse.getVolunteers())
                 {
-                    for (auto &volunteer : medWareHouse.getVolunteers())
+                    if (auto *courier = dynamic_cast<CourierVolunteer *>(v))
                     {
-                        if (auto *courier = dynamic_cast<CourierVolunteer *>(volunteer))
+                        if (courier->canTakeRequest(*supplyRequest))
                         {
-                            if (!courier->isBusy() && courier->canTakeRequest(*request))
-                            {
-                                courier->acceptRequest(*request);
-                                request->setStatus(RequestStatus::ON_THE_WAY);
-                                request->setCourierId(courier->getId());
-                                break;
-                            }
+                            courier->acceptRequest(*supplyRequest);
+                            supplyRequest->setStatus(RequestStatus::ON_THE_WAY);
+                            supplyRequest->setCourierId(courier->getId());
+                            break;
                         }
                     }
                 }
             }
         }
-        for (auto &request : inProcessRequests)
+
+        // Step 3: Process all volunteers' steps
+        for (Volunteer *v : medWareHouse.getVolunteers())
         {
-            if (request->getStatus() == RequestStatus::ON_THE_WAY)
+            v->step();
+        }
+
+        // Step 4: Check for completed requests and update their status
+        for (Volunteer *v : medWareHouse.getVolunteers())
+        {
+            if (v->hasFinishedRequest())
             {
-                auto &courier = medWareHouse.getVolunteer(request->getCourierId());
-                if (!courier.isBusy())
+                int activeRequestId = v->getActiveRequestId();
+                if (activeRequestId != NO_REQUEST)
                 {
-                    request->setStatus(RequestStatus::DONE);
-                    medWareHouse.moveRequestToCompleted(request);
+                    SupplyRequest &supplyRequest = medWareHouse.getRequest(activeRequestId);
+                    if (supplyRequest.getStatus() == RequestStatus::ON_THE_WAY)
+                    {
+                        supplyRequest.setStatus(RequestStatus::DONE);
+                        medWareHouse.moveRequestToCompleted(&supplyRequest);
+                    }
+                    v->setNoActiveRequest();
                 }
             }
         }
     }
     complete();
+    medWareHouse.addAction(this);
 }
+
 // ATT: I'm not sure about the return value
 std::string SimulateStep::toString() const { return "SimulateStep"; }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }

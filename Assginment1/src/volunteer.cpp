@@ -30,6 +30,17 @@ bool Volunteer::isBusy() const
 {
     return activeRequestId != NO_REQUEST;
 }
+bool Volunteer::hasFinishedRequest()
+{
+    if (activeRequestId == completedRequestId)
+        return true;
+    return false;
+}
+
+void Volunteer::setActiveRequestId(int activeRequestId)
+{
+    this->activeRequestId = activeRequestId;
+}
 
 // InventoryManagerVolunteer implementation
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name, int coolDown)
@@ -44,6 +55,7 @@ void InventoryManagerVolunteer::step()
     if (activeRequestId != NO_REQUEST)
     {
         timeLeft--;
+        std::cout << "(InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
         // ATT: Do I need to check if timeLeft is less than 0?
         if (timeLeft == 0)
         {
@@ -118,11 +130,12 @@ int CourierVolunteer::getDistancePerStep() const
 bool CourierVolunteer::decreaseDistanceLeft()
 {
     distanceLeft -= distancePerStep;
-    if (distanceLeft > 0)
+
+    if (distanceLeft <= 0)
     {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 bool CourierVolunteer::hasRequestsLeft() const
 {
@@ -130,23 +143,48 @@ bool CourierVolunteer::hasRequestsLeft() const
 }
 bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const
 {
-    return !isBusy() && request.getDistance() <= maxDistance; // request is yet to be implemented
+    if (!isBusy() && request.getDistance() <= maxDistance && request.getStatus() == RequestStatus::COLLECTING)
+    {
+        return true;
+    }
+    return false;
 }
 void CourierVolunteer::acceptRequest(const SupplyRequest &request)
 {
     activeRequestId = request.getId();
     distanceLeft = request.getDistance();
+    std::cout << "Vol ID " << getId() << "Accepted Request ID: " << activeRequestId << " with Distance Left: " << distanceLeft << std::endl;
 }
+
+// void CourierVolunteer::step()
+// {
+//     distanceLeft = distanceLeft - distancePerStep;
+//     std::cout << "(CourierVolunteer) Distance Left: " << distanceLeft << " " << activeRequestId << std::endl;
+//     if (distanceLeft <= 0)
+//     {
+//         std::cout << "(CourierVolunteer) Request Completed " << activeRequestId << std::endl;
+//         distanceLeft = 0;
+//         completedRequestId = activeRequestId;
+//         // activeRequestId = NO_REQUEST;
+//     }
+// }
+
 void CourierVolunteer::step()
 {
-    if (activeRequestId != NO_REQUEST)
+    if (activeRequestId != NO_REQUEST && distanceLeft > 0)
     {
+        std::cout << "BEFORE (CourierVolunteer) Distance Left: " << distanceLeft << " distancePerStep: " << distancePerStep << std::endl;
         distanceLeft -= distancePerStep;
-        if (distanceLeft <= 0)
+        std::cout << "AFTER (CourierVolunteer) Distance Left: " << distanceLeft << " distancePerStep: " << distancePerStep << std::endl;
+        if (distanceLeft < 0)
         {
             distanceLeft = 0;
+        }
+        if (distanceLeft == 0)
+        {
+            std::cout << "(CourierVolunteer) Request Completed activeRequestId: " << activeRequestId << std::endl;
             completedRequestId = activeRequestId;
-            // activeRequestId = NO_REQUEST;
+            std::cout << "(CourierVolunteer) Request Completed completedRequestId: " << completedRequestId << std::endl;
         }
     }
 }

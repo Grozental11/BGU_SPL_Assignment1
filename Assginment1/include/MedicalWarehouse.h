@@ -40,9 +40,11 @@ public:
     std::vector<Volunteer *> &getVolunteers();
     bool isInPending(SupplyRequest *request);
     void moveRequestToPending(SupplyRequest *request);
-    void moveRequestToInProcess(SupplyRequest* request);
-    void moveRequestToCompleted(SupplyRequest* request);
+    void moveRequestToInProcess(SupplyRequest *request);
+    void moveRequestToCompleted(SupplyRequest *request);
 
+    void eraseFromPending(SupplyRequest *request);
+    void setRequest(SupplyRequest *request);
 
 private:
     bool isOpen;
