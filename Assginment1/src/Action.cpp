@@ -26,7 +26,6 @@ string CoreAction::getErrorMsg() const { return errorMsg; }
 
 // SimulateStep
 SimulateStep::SimulateStep(int numOfSteps) : numOfSteps(numOfSteps) {}
-
 void SimulateStep::act(MedicalWareHouse &medWareHouse)
 {
     for (int i = 0; i < numOfSteps; i++)
@@ -58,6 +57,7 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
         // Step 2: Process all volunteers' steps (includes Inventory Managers collecting and Couriers delivering)
         for (Volunteer *v : medWareHouse.getVolunteers())
         {
+            std::cout << "Volunteer ID: " << v->getId() << " Steping" << std::endl;
             v->step();
         }
 
@@ -67,6 +67,7 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
             if (supplyRequest->getStatus() == RequestStatus::COLLECTING)
             {
                 Volunteer &inventoryManager = medWareHouse.getVolunteer(supplyRequest->getInventoryManagerId());
+                std::cout << "Inventory Manager ID: " << inventoryManager.getId() << " Has Finished? " << inventoryManager.hasFinishedRequest() << std::endl;
                 if (!inventoryManager.isBusy())
                 {
                     for (Volunteer *v : medWareHouse.getVolunteers())
@@ -137,31 +138,36 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
 //             }
 //         }
 
-//         // Step 2: Assign collecting requests to available Couriers
+//         // Step 2: Process all volunteers' steps (includes Inventory Managers collecting and Couriers delivering)
+//         for (Volunteer *v : medWareHouse.getVolunteers())
+//         {
+//             v->step();
+//         }
+
+//         // Step 3: Assign collecting requests to available Couriers if Inventory Managers have finished collecting
 //         for (SupplyRequest *supplyRequest : medWareHouse.getInProcessRequests())
 //         {
 //             if (supplyRequest->getStatus() == RequestStatus::COLLECTING)
 //             {
-//                 for (Volunteer *v : medWareHouse.getVolunteers())
+//                 Volunteer &inventoryManager = medWareHouse.getVolunteer(supplyRequest->getInventoryManagerId());
+//                 std::cout << "Inventory Manager ID: " << inventoryManager.getId() << "Has Finished? "<<inventoryManager.hasFinishedRequest()<< std::endl;
+//                 if (!inventoryManager.isBusy() && inventoryManager.hasFinishedRequest())
 //                 {
-//                     if (auto *courier = dynamic_cast<CourierVolunteer *>(v))
+//                     for (Volunteer *v : medWareHouse.getVolunteers())
 //                     {
-//                         if (courier->canTakeRequest(*supplyRequest))
+//                         if (auto *courier = dynamic_cast<CourierVolunteer *>(v))
 //                         {
-//                             courier->acceptRequest(*supplyRequest);
-//                             supplyRequest->setStatus(RequestStatus::ON_THE_WAY);
-//                             supplyRequest->setCourierId(courier->getId());
-//                             break;
+//                             if (courier->canTakeRequest(*supplyRequest))
+//                             {
+//                                 courier->acceptRequest(*supplyRequest);
+//                                 supplyRequest->setStatus(RequestStatus::ON_THE_WAY);
+//                                 supplyRequest->setCourierId(courier->getId());
+//                                 break;
+//                             }
 //                         }
 //                     }
 //                 }
 //             }
-//         }
-
-//         // Step 3: Process all volunteers' steps
-//         for (Volunteer *v : medWareHouse.getVolunteers())
-//         {
-//             v->step();
 //         }
 
 //         // Step 4: Check for completed requests and update their status
@@ -184,10 +190,11 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
 //         }
 //     }
 //     complete();
+//     //error("SimulateStep::act");
 //     medWareHouse.addAction(this);
 // }
 
-// ATT: I'm not sure about the return value
+
 std::string SimulateStep::toString() const { return "SimulateStep"; }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 
@@ -206,14 +213,14 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
         medWareHouse.addRequest(supplyRequest);
         if (result == -1)
         {
-            error("Beneficiary reached max requests");
+            error("Cant place this request");
             medWareHouse.addAction(this);
             return;
         }
     }
     else
     {
-        error("Beneficiary not found");
+        error("Cant place this request");
         medWareHouse.addAction(this);
         return;
     }

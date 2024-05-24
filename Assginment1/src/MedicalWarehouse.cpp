@@ -75,16 +75,18 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
                 std::cout << "Cool Down: " << coolDown << std::endl;
                 InventoryManagerVolunteer *inventoryManagerVolunteer = new InventoryManagerVolunteer(getNextVolunteerId(), name, coolDown);
                 volunteers.push_back(inventoryManagerVolunteer);
-                std::cout << "Adding inventory manager: " << inventoryManagerVolunteer->getId() << ", " << inventoryManagerVolunteer->getName() << std::endl;
+                std::cout << "Adding inventory manager: " << inventoryManagerVolunteer -> toString() << std::endl;
+                // std::cout << "Adding inventory manager: " << inventoryManagerVolunteer->getId() << ", " << inventoryManagerVolunteer->getName() << std::endl;
             }
             else if (type == "courier")
             {
                 maxDistance = std::stoi(type2); // Convert type2 to an integer
                 iss >> distancePerStep;
-                std::cout << "Max Distance: " << maxDistance << " Distance Per Step: " << distancePerStep << std::endl;
+                //std::cout << "Max Distance: " << maxDistance << " Distance Per Step: " << distancePerStep << std::endl;
                 CourierVolunteer *courierVolunteer = new CourierVolunteer(getNextVolunteerId(), name, maxDistance, distancePerStep);
                 volunteers.push_back(courierVolunteer);
-                std::cout << "Adding courier: " << courierVolunteer->getId() << ", " << courierVolunteer->getName() << courierVolunteer->getDistancePerStep() << std::endl;
+                std::cout << "Adding courier: " << courierVolunteer -> toString() << std::endl;
+                // std::cout << "Adding courier: " << courierVolunteer->getId() << ", " << courierVolunteer->getName() << courierVolunteer->getDistancePerStep() << std::endl;
             }
         }
         firstWord.clear();
@@ -125,7 +127,7 @@ void MedicalWareHouse::start()
                 iss >> beneficiaryId;
                 if (iss.fail())
                 {
-                    throw invalid_argument("Invalid beneficiary ID.");
+                    throw invalid_argument("Cannot place this request");
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
@@ -255,7 +257,7 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
             return *beneficiary;
         }
     }
-    throw std::runtime_error("Beneficiary not found");
+    std::cout << "getBeneficiary() Beneficiary not found" << std::endl;
 }
 
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const

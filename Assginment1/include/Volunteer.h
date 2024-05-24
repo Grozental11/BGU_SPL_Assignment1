@@ -55,6 +55,7 @@ public:
 private:
     const int coolDown; // The time it takes the volunteer to process a Request
     int timeLeft;       // Time left until the volunteer finishes his current Request
+    int coolDownCounter; // Counter for the coolDown
 };
 
 class CourierVolunteer : public Volunteer

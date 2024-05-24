@@ -56,12 +56,15 @@ void InventoryManagerVolunteer::step()
     {
         timeLeft--;
         std::cout << "(InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
+        std::cout << "(InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
         // ATT: Do I need to check if timeLeft is less than 0?
         if (timeLeft == 0)
         {
             completedRequestId = activeRequestId;
             activeRequestId = NO_REQUEST;
         }
+        std::cout << "AFTER (InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
+        std::cout << "AFTER (InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
     }
 }
 int InventoryManagerVolunteer::getCoolDown() const
@@ -74,12 +77,11 @@ int InventoryManagerVolunteer::getTimeLeft() const
 }
 bool InventoryManagerVolunteer::decreaseCoolDown()
 {
-    if (timeLeft > 0)
-    {
-        timeLeft--;
-        return false;
+    timeLeft -= 1;
+    if (timeLeft <= 0) {
+        return true;
     }
-    return true;
+    return false; 
 }
 // ATT: Im not sure I understood the question correctly, need to verify
 bool InventoryManagerVolunteer::hasRequestsLeft() const
@@ -155,6 +157,10 @@ void CourierVolunteer::acceptRequest(const SupplyRequest &request)
     distanceLeft = request.getDistance();
     std::cout << "Vol ID " << getId() << "Accepted Request ID: " << activeRequestId << " with Distance Left: " << distanceLeft << std::endl;
 }
+// bool CourierVolunteer::coolDownFinished()
+// {
+//     return distanceLeft == 0;
+// }
 
 // void CourierVolunteer::step()
 // {
@@ -192,7 +198,16 @@ void CourierVolunteer::step()
 // ATT: I'm not sure of the format of the string, need to verify
 string CourierVolunteer::toString() const
 {
-    return "CourierVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+    //return "CourierVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+    std::ostringstream oss;
+    oss << "Courier ID: " << getId() << "\n";
+    oss << "Name: " << getName() << "\n";
+    oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
+    oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
+    oss << "distanceLeft: " << distanceLeft << "\n";
+    oss << "maxDistance: " << maxDistance << "\n";
+    return oss.str();
+    
 }
 
 void Volunteer::setNoActiveRequest()
