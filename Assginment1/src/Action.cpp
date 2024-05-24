@@ -57,7 +57,7 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
         // Step 2: Process all volunteers' steps (includes Inventory Managers collecting and Couriers delivering)
         for (Volunteer *v : medWareHouse.getVolunteers())
         {
-            std::cout << "Volunteer ID: " << v->getId() << " Steping" << std::endl;
+            //std::cout << "Volunteer ID: " << v->getId() << " Steping" << std::endl;
             v->step();
         }
 
@@ -67,7 +67,7 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
             if (supplyRequest->getStatus() == RequestStatus::COLLECTING)
             {
                 Volunteer &inventoryManager = medWareHouse.getVolunteer(supplyRequest->getInventoryManagerId());
-                std::cout << "Inventory Manager ID: " << inventoryManager.getId() << " Has Finished? " << inventoryManager.hasFinishedRequest() << std::endl;
+                //std::cout << "Inventory Manager ID: " << inventoryManager.getId() << " isBusy() " << inventoryManager.isBusy() << std::endl;
                 if (!inventoryManager.isBusy())
                 {
                     for (Volunteer *v : medWareHouse.getVolunteers())
@@ -206,9 +206,9 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
     if (beneficiary.canMakeRequest())
     {
         int requestID = medWareHouse.getNextRequestID();
-        std::cout << requestID << std::endl;
+        //std::cout << requestID << std::endl;
         SupplyRequest *supplyRequest = new SupplyRequest(requestID, beneficiaryId, beneficiary.getBeneficiaryDistance());
-        std::cout << supplyRequest << std::endl;
+        //std::cout << supplyRequest << std::endl;
         auto result = beneficiary.addRequest(requestID);
         medWareHouse.addRequest(supplyRequest);
         if (result == -1)
@@ -227,7 +227,7 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
     complete();
     medWareHouse.addAction(this);
 
-    std::cout << "Request added successfully" << std::endl;
+    // std::cout << "Request added successfully" << std::endl;
 }
 
 // HELP: I'm not sure about this function
@@ -295,8 +295,8 @@ void PrintRequestStatus::act(MedicalWareHouse &medWareHouse)
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Error: " << e.what() << std::endl;
-        this->error("Request does not exist.");
+        //std::cerr << "Error: " << e.what() << std::endl;
+        error("Request does not exist.");
     }
     medWareHouse.addAction(this);
 }
@@ -307,10 +307,17 @@ string PrintRequestStatus::toString() const { return "PrintRequestStatus"; }
 PrintBeneficiaryStatus::PrintBeneficiaryStatus(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
 void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse)
 {
-    std::cout << "PrintBeneficiaryStatus::act " << beneficiaryId << std::endl;
-    Beneficiary &ben = medWareHouse.getBeneficiary(beneficiaryId);
-    std::cout << ben.toString() << std::endl;
-    complete();
+    try{
+        Beneficiary &ben = medWareHouse.getBeneficiary(beneficiaryId);
+        //if(ben = nullptr){
+            std::cout << ben.toString() << std::endl;
+            complete();
+        //}
+    }
+    catch(const std::exception &e)
+    {
+        error("Beneficiary does not exist.");
+    }
     medWareHouse.addAction(this);
 }
 PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const { return new PrintBeneficiaryStatus(*this); }
@@ -320,9 +327,7 @@ string PrintBeneficiaryStatus::toString() const { return "PrintBeneficiaryStatus
 PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}
 void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse)
 {
-    // std::cout << "PrintVolunteerStatus::act " << volunteerId << std::endl;
     Volunteer &vol = medWareHouse.getVolunteer(volunteerId);
-    // std::cout << "Found Volunteer" << std::endl;
     std::cout << vol.toString() << std::endl;
     complete();
     medWareHouse.addAction(this);

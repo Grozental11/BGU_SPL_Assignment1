@@ -44,7 +44,7 @@ void Volunteer::setActiveRequestId(int activeRequestId)
 
 // InventoryManagerVolunteer implementation
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name, int coolDown)
-    : Volunteer(id, name), coolDown(coolDown), timeLeft(0) {}
+    : Volunteer(id, name), coolDown(coolDown+1), timeLeft(0) {}
 
 InventoryManagerVolunteer *InventoryManagerVolunteer::clone() const
 {
@@ -54,17 +54,17 @@ void InventoryManagerVolunteer::step()
 {
     if (activeRequestId != NO_REQUEST)
     {
-        timeLeft--;
-        std::cout << "(InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
-        std::cout << "(InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
+        timeLeft -= 1;
+        //std::cout << "(InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
+        //std::cout << "(InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
         // ATT: Do I need to check if timeLeft is less than 0?
         if (timeLeft == 0)
         {
             completedRequestId = activeRequestId;
             activeRequestId = NO_REQUEST;
         }
-        std::cout << "AFTER (InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
-        std::cout << "AFTER (InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
+        //std::cout << "AFTER (InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
+        //std::cout << "AFTER (InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
     }
 }
 int InventoryManagerVolunteer::getCoolDown() const
@@ -105,7 +105,7 @@ string InventoryManagerVolunteer::toString() const
     oss << "Name: " << getName() << "\n";
     oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
     oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
-    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()) : "None") << "\n";
+    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()-1) : "None") << "\n";
     return oss.str();
 }
 
@@ -155,7 +155,7 @@ void CourierVolunteer::acceptRequest(const SupplyRequest &request)
 {
     activeRequestId = request.getId();
     distanceLeft = request.getDistance();
-    std::cout << "Vol ID " << getId() << "Accepted Request ID: " << activeRequestId << " with Distance Left: " << distanceLeft << std::endl;
+    //std::cout << "CourierVolunteer ID " << getId() << "Accepted Request ID: " << activeRequestId << " with Distance Left: " << distanceLeft << std::endl;
 }
 // bool CourierVolunteer::coolDownFinished()
 // {
@@ -177,11 +177,9 @@ void CourierVolunteer::acceptRequest(const SupplyRequest &request)
 
 void CourierVolunteer::step()
 {
-    if (activeRequestId != NO_REQUEST && distanceLeft > 0)
+    if (activeRequestId != NO_REQUEST && distanceLeft >= 0)
     {
-        std::cout << "BEFORE (CourierVolunteer) Distance Left: " << distanceLeft << " distancePerStep: " << distancePerStep << std::endl;
         distanceLeft -= distancePerStep;
-        std::cout << "AFTER (CourierVolunteer) Distance Left: " << distanceLeft << " distancePerStep: " << distancePerStep << std::endl;
         if (distanceLeft < 0)
         {
             distanceLeft = 0;

@@ -257,7 +257,7 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
             return *beneficiary;
         }
     }
-    std::cout << "getBeneficiary() Beneficiary not found" << std::endl;
+    std::cout << "Beneficiary not found" << std::endl;
 }
 
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
