@@ -6,7 +6,6 @@ using std::string;
 using std::vector;
 
 // Beneficiary implementation
-// ATT: I added the following constructor to the class BUT im not sure if needed, can there be more than 2 Beneficiary?
 Beneficiary::Beneficiary(int id, const string &name, int locationDistance, int maxRequests)
     : id(id), name(name), locationDistance(locationDistance), maxRequests(maxRequests),requestsId() {}
 

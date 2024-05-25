@@ -377,10 +377,11 @@ void MedicalWareHouse::start()
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
+                
+                
             }
             else if (actionType == "step")
             {
-                std::cout << "Simulating step" << std::endl;
                 int steps;
                 iss >> steps;
                 if (iss.fail() || steps <= 0)
@@ -493,7 +494,7 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
             return *beneficiary;
         }
     }
-    throw std::runtime_error("Beneficiary not found");
+    return *Beneficiaries[0];
 }
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {

@@ -206,14 +206,18 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse)
 {
     try{
         Beneficiary &ben = medWareHouse.getBeneficiary(beneficiaryId);
-        //if(ben = nullptr){
-            std::cout << ben.toString() << std::endl;
-            complete();
-        //}
+        std::cout << "Beneficiary ID: " << beneficiaryId << std::endl;
+        for (int requestId : ben.getRequestsIds())
+        {
+            SupplyRequest &request = medWareHouse.getRequest(requestId);
+            std::cout << "Request ID: " << requestId << std::endl;
+            std::cout << "Request Status: " << request.getStatusString() << std::endl;
+        }
+        std::cout << "Requests Left " << ben.getMaxRequests() - ben.getNumRequests() << "\n";
     }
     catch(const std::exception &e)
     {
-        error("Beneficiary does not exist.");
+        error(".");
     }
     medWareHouse.addAction(this);
 }
