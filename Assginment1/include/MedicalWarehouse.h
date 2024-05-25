@@ -15,6 +15,11 @@ class MedicalWareHouse
 
 public:
     MedicalWareHouse(const string &configFilePath);
+    MedicalWareHouse &operator=(const MedicalWareHouse &other);
+    MedicalWareHouse(const MedicalWareHouse &other); // Copy Constructor
+    MedicalWareHouse(MedicalWareHouse &&other);
+    MedicalWareHouse &operator=(MedicalWareHouse &&other);
+    ~MedicalWareHouse();
     void start();
     void addRequest(SupplyRequest *request);
     void addAction(CoreAction *action);

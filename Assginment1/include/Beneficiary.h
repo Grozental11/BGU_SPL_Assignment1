@@ -22,6 +22,7 @@ public:
 
     // Added function
     const string toString() const;
+    virtual ~Beneficiary() {};
 
 
 private:
@@ -37,6 +38,8 @@ class HospitalBeneficiary : public Beneficiary
 public:
     HospitalBeneficiary(int id, const string &name, int locationDistance, int maxRequests);
     HospitalBeneficiary *clone() const override;
+    
+    virtual ~HospitalBeneficiary() {}
 
 private:
 };
@@ -46,6 +49,8 @@ class ClinicBeneficiary : public Beneficiary
 public:
     ClinicBeneficiary(int id, const string &name, int locationDistance, int maxRequests);
     ClinicBeneficiary *clone() const override;
+
+    virtual ~ClinicBeneficiary() {}
 
 private:
 };

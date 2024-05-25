@@ -8,18 +8,18 @@ using std::vector;
 // Beneficiary implementation
 // ATT: I added the following constructor to the class BUT im not sure if needed, can there be more than 2 Beneficiary?
 Beneficiary::Beneficiary(int id, const string &name, int locationDistance, int maxRequests)
-    : id(id), name(name), locationDistance(locationDistance), maxRequests(maxRequests) {}
+    : id(id), name(name), locationDistance(locationDistance), maxRequests(maxRequests),requestsId() {}
 
 const string &Beneficiary::getName() const { return name; }
 int Beneficiary::getId() const { return id; }
 int Beneficiary::getBeneficiaryDistance() const { return locationDistance; }
 int Beneficiary::getMaxRequests() const { return maxRequests; }
 int Beneficiary::getNumRequests() const { return requestsId.size(); }
-bool Beneficiary::canMakeRequest() const { return requestsId.size() < maxRequests; }
+bool Beneficiary::canMakeRequest() const { return static_cast<int>(requestsId.size()) < maxRequests; }
 const vector<int> &Beneficiary::getRequestsIds() const { return requestsId; }
 int Beneficiary::addRequest(int RequestId)
 {
-    if (requestsId.size() >= maxRequests)
+    if (static_cast<int>(requestsId.size()) >= maxRequests)
     {
         return -1;
     }

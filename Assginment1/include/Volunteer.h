@@ -11,6 +11,7 @@ class Volunteer
 {
 public:
     Volunteer(int id, const string &name);
+    virtual ~Volunteer() {}; 
     int getId() const;
     const string &getName() const;
     int getActiveRequestId() const;
@@ -55,7 +56,7 @@ public:
 private:
     const int coolDown; // The time it takes the volunteer to process a Request
     int timeLeft;       // Time left until the volunteer finishes his current Request
-    int coolDownCounter; // Counter for the coolDown
+    int coolDownCounter = 0; // Counter for the coolDown
 };
 
 class CourierVolunteer : public Volunteer

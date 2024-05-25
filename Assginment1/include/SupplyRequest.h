@@ -20,6 +20,7 @@ class SupplyRequest
 
 public:
     SupplyRequest(int id, int beneficiaryId, int distance);
+    ~SupplyRequest() {}; // Virtual destructor
     int getId() const;
     int getBeneficiaryId() const;
     void setStatus(RequestStatus status);
@@ -32,6 +33,7 @@ public:
 
     // My functions
     int getDistance() const;
+    SupplyRequest *clone();
     SupplyRequest();
     const string getStatusString();
 

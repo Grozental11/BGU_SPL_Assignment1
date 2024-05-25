@@ -9,7 +9,8 @@ using std::vector;
 
 // Volunteer implementation
 Volunteer::Volunteer(int id, const string &name)
-    : id(id), name(name), activeRequestId(NO_REQUEST), completedRequestId(NO_REQUEST) {}
+    :completedRequestId(NO_REQUEST), activeRequestId(NO_REQUEST), id(id), name(name) {}
+
 int Volunteer::getId() const
 {
     return id;

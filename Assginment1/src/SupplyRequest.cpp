@@ -95,5 +95,12 @@ const std::string SupplyRequest::toString() const
     return oss.str();
 }
 
+
+
 // My functions
 int SupplyRequest::getDistance() const { return distance; }
+//clone function
+SupplyRequest *SupplyRequest::clone()
+{
+    return new SupplyRequest(*this);
+}

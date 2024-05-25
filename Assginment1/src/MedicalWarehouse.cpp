@@ -19,6 +19,253 @@ MedicalWareHouse::MedicalWareHouse(const string &configFilePath)
 {
     initializeFromConfig(configFilePath);
 }
+// Role of 5 functions
+// Destructor
+MedicalWareHouse ::~MedicalWareHouse()
+{
+    for (size_t i = 0; i < actionsLog.size(); ++i) {
+        try
+        {
+            delete actionsLog[i];
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+    }
+    actionsLog.clear();
+
+    for (size_t i = 0; i < volunteers.size(); ++i) {
+        std::cout << "Deleting volunteers" << std::endl;
+        delete volunteers[i];
+    }
+    volunteers.clear();
+
+    for (size_t i = 0; i < pendingRequests.size(); ++i) {
+        std::cout << "Deleting pendingRequests" << std::endl;
+        delete pendingRequests[i];
+    }
+    pendingRequests.clear();
+
+    for (size_t i = 0; i < inProcessRequests.size(); ++i) {
+        delete inProcessRequests[i];
+    }
+    inProcessRequests.clear();
+
+    for (size_t i = 0; i < completedRequests.size(); ++i) {
+        delete completedRequests[i];
+    }
+    completedRequests.clear();
+
+    for (size_t i = 0; i < Beneficiaries.size(); ++i) {
+        delete Beneficiaries[i];
+    }
+    Beneficiaries.clear();
+}
+// Copy Assignment Operator
+MedicalWareHouse &MedicalWareHouse::operator=(const MedicalWareHouse &other){
+    if (this == &other)
+    {
+        return *this;
+    }
+    isOpen = other.isOpen;
+    beneficiaryCounter = other.beneficiaryCounter;
+    volunteerCounter = other.volunteerCounter;
+    nextRequestID = other.nextRequestID;
+
+    for (auto &beneficiary : Beneficiaries)
+    {
+        delete beneficiary;
+    }
+    Beneficiaries.clear();
+    for (auto &beneficiary : other.Beneficiaries)
+    {
+        Beneficiaries.push_back(beneficiary->clone());
+    }
+
+    for (auto &volunteer : volunteers)
+    {
+        delete volunteer;
+    }
+    volunteers.clear();
+    for (auto &volunteer : other.volunteers)
+    {
+        volunteers.push_back(volunteer->clone());
+    }
+
+    for (auto &request : pendingRequests)
+    {
+        delete request;
+    }
+    pendingRequests.clear();
+    for (auto &request : other.pendingRequests)
+    {
+        pendingRequests.push_back(request->clone());
+    }
+
+    for (auto &request : inProcessRequests)
+    {
+        delete request;
+    }
+    inProcessRequests.clear();
+    for (auto &request : other.inProcessRequests)
+    {
+        inProcessRequests.push_back(request->clone());
+    }
+
+    for (auto &request : completedRequests)
+    {
+        delete request;
+    }
+    completedRequests.clear();
+    for (auto &request : other.completedRequests)
+    {
+        completedRequests.push_back(request->clone());
+    }
+
+    for (auto &action : actionsLog)
+    {
+        delete action;
+    }
+    actionsLog.clear();
+    for (auto &action : other.actionsLog)
+    {
+        actionsLog.push_back(action->clone());
+    }
+
+    return *this;
+
+}
+// Copy Constructor
+MedicalWareHouse::MedicalWareHouse(const MedicalWareHouse &other)
+    : isOpen(other.isOpen), actionsLog(), volunteers(), pendingRequests(), inProcessRequests(), completedRequests(), Beneficiaries(0), beneficiaryCounter(other.beneficiaryCounter), volunteerCounter(other.volunteerCounter), nextRequestID(other.nextRequestID)
+{
+    for (auto &beneficiary : other.Beneficiaries)
+    {
+        Beneficiaries.push_back(beneficiary->clone());
+    }
+
+    for (auto &volunteer : other.volunteers)
+    {
+        volunteers.push_back(volunteer->clone());
+    }
+
+    for (auto &request : other.pendingRequests)
+    {
+        pendingRequests.push_back(request->clone());
+    }
+
+    for (auto &request : other.inProcessRequests)
+    {
+        inProcessRequests.push_back(request->clone());
+    }
+
+    for (auto &request : other.completedRequests)
+    {
+        completedRequests.push_back(request->clone());
+    }
+
+    for (auto &action : other.actionsLog)
+    {
+        actionsLog.push_back(action->clone());
+    }
+}
+// Move Constructor
+MedicalWareHouse::MedicalWareHouse(MedicalWareHouse &&other)
+    : isOpen(other.isOpen), actionsLog(other.actionsLog), volunteers(other.volunteers), pendingRequests(other.pendingRequests), inProcessRequests(other.inProcessRequests), completedRequests(other.completedRequests), Beneficiaries(other.Beneficiaries), beneficiaryCounter(other.beneficiaryCounter), volunteerCounter(other.volunteerCounter), nextRequestID(other.nextRequestID)
+{
+    other.isOpen = false;
+    other.beneficiaryCounter = -1;
+    other.volunteerCounter = -1;
+    other.nextRequestID = 0;
+    other.Beneficiaries.clear();
+    other.volunteers.clear();
+    other.pendingRequests.clear();
+    other.inProcessRequests.clear();
+    other.completedRequests.clear();
+    other.actionsLog.clear();
+}
+// Move Assignment Operator
+MedicalWareHouse &MedicalWareHouse::operator=(MedicalWareHouse &&other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+    isOpen = other.isOpen;
+    beneficiaryCounter = other.beneficiaryCounter;
+    volunteerCounter = other.volunteerCounter;
+    nextRequestID = other.nextRequestID;
+
+    for (auto &beneficiary : Beneficiaries)
+    {
+        delete beneficiary;
+    }
+    Beneficiaries.clear();
+    for (auto &beneficiary : other.Beneficiaries)
+    {
+        Beneficiaries.push_back(beneficiary);
+    }
+    other.Beneficiaries.clear();
+
+    for (auto &volunteer : volunteers)
+    {
+        delete volunteer;
+    }
+    volunteers.clear();
+    for (auto &volunteer : other.volunteers)
+    {
+        volunteers.push_back(volunteer);
+    }
+    other.volunteers.clear();
+
+    for (auto &request : pendingRequests)
+    {
+        delete request;
+    }
+    pendingRequests.clear();
+    for (auto &request : other.pendingRequests)
+    {
+        pendingRequests.push_back(request);
+    }
+    other.pendingRequests.clear();
+
+    for (auto &request : inProcessRequests)
+    {
+        delete request;
+    }
+    inProcessRequests.clear();
+    for (auto &request : other.inProcessRequests)
+    {
+        inProcessRequests.push_back(request);
+    }
+    other.inProcessRequests.clear();
+
+    for (auto &request : completedRequests)
+    {
+        delete request;
+    }
+    completedRequests.clear();
+    for (auto &request : other.completedRequests)
+    {
+        completedRequests.push_back(request);
+    }
+    other.completedRequests.clear();
+
+    for (auto &action : actionsLog)
+    {
+        delete action;
+    }
+    actionsLog.clear();
+    for (auto &action : other.actionsLog)
+    {
+        actionsLog.push_back(action);
+    }
+    other.actionsLog.clear();
+
+    return *this;
+}
+
 void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
 {
     std::ifstream inFile(configFilePath);
@@ -100,7 +347,6 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
     }
     inFile.close();
 }
-
 void MedicalWareHouse::start()
 {
     cout << "Medical services are now open!" << endl;
@@ -131,7 +377,6 @@ void MedicalWareHouse::start()
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
-                addAction(requestAction);
             }
             else if (actionType == "step")
             {
@@ -144,7 +389,6 @@ void MedicalWareHouse::start()
                 }
                 SimulateStep *stepAction = new SimulateStep(steps);
                 stepAction->act(*this);
-                addAction(stepAction);
             }
             else if (actionType == "register")
             {
@@ -157,7 +401,6 @@ void MedicalWareHouse::start()
                 }
                 RegisterBeneficiary *registerAction = new RegisterBeneficiary(name, type, distance, maxRequests);
                 registerAction->act(*this);
-                addAction(registerAction);
             }
             else if (actionType == "requestStatus")
             {
@@ -169,7 +412,6 @@ void MedicalWareHouse::start()
                 }
                 PrintRequestStatus *printRequestStatusAction = new PrintRequestStatus(requestId);
                 printRequestStatusAction->act(*this);
-                addAction(printRequestStatusAction);
             }
             else if (actionType == "beneficiaryStatus")
             {
@@ -181,7 +423,6 @@ void MedicalWareHouse::start()
                 }
                 PrintBeneficiaryStatus *printBeneficiaryStatusAction = new PrintBeneficiaryStatus(beneficiaryId);
                 printBeneficiaryStatusAction->act(*this);
-                addAction(printBeneficiaryStatusAction);
             }
             else if (actionType == "volunteerStatus")
             {
@@ -199,26 +440,23 @@ void MedicalWareHouse::start()
             {
                 PrintActionsLog *printActionsLogAction = new PrintActionsLog();
                 printActionsLogAction->act(*this);
-                addAction(printActionsLogAction);
             }
             else if (actionType == "close")
             {
                 Close *closeAction = new Close();
                 closeAction->act(*this);
-                addAction(closeAction);
+                delete closeAction;
                 break; // Exit the loop
             }
             else if (actionType == "backup")
             {
                 BackupWareHouse *backupAction = new BackupWareHouse();
                 backupAction->act(*this);
-                addAction(backupAction);
             }
             else if (actionType == "restore")
             {
                 RestoreWareHouse *restoreAction = new RestoreWareHouse();
                 restoreAction->act(*this);
-                addAction(restoreAction);
             }
             else
             {
@@ -246,7 +484,6 @@ void MedicalWareHouse::addAction(CoreAction *action)
 {
     actionsLog.push_back(action);
 }
-
 Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
 {
     for (auto &beneficiary : Beneficiaries)
@@ -256,8 +493,8 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
             return *beneficiary;
         }
     }
+    throw std::runtime_error("Beneficiary not found");
 }
-
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
     for (Volunteer *volunteer : volunteers)
@@ -269,7 +506,6 @@ Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
     }
     throw std::runtime_error("Volunteer not found");
 }
-
 SupplyRequest &MedicalWareHouse::getRequest(int requestId) const
 {
     for (SupplyRequest *o : pendingRequests)
@@ -295,52 +531,43 @@ int MedicalWareHouse::getNextBeneficiaryId()
     ++beneficiaryCounter;
     return beneficiaryCounter;
 }
-
 void MedicalWareHouse::addNewBeneficiary(Beneficiary *beneficiary)
 {
     Beneficiaries.push_back(beneficiary);
     std::cout << "Beneficiarie added" << std::endl;
 }
-
 int MedicalWareHouse::getVolunteerCounter() { return volunteerCounter; }
 int MedicalWareHouse::getNextVolunteerId()
 {
     ++volunteerCounter;
     return volunteerCounter;
 }
-
 int MedicalWareHouse::getNextRequestID()
 {
     return nextRequestID++;
 }
-
 std::vector<SupplyRequest *> &MedicalWareHouse::getPendingRequests()
 {
     return pendingRequests;
 }
-
 std::vector<SupplyRequest *> &MedicalWareHouse::getInProcessRequests()
 {
     return inProcessRequests;
 }
-
 std::vector<SupplyRequest *> &MedicalWareHouse::getCompletedRequests()
 {
     return completedRequests;
 }
-
 std::vector<Volunteer *> &MedicalWareHouse::getVolunteers()
 {
     return volunteers;
 }
-
 bool MedicalWareHouse::isInPending(SupplyRequest *request)
 {
     if (std::find(pendingRequests.begin(), pendingRequests.end(), request) != pendingRequests.end())
         return true;
     return false;
 }
-
 void MedicalWareHouse::moveRequestToPending(SupplyRequest *request)
 {
     if (!isInPending(request))
@@ -360,7 +587,6 @@ void MedicalWareHouse::moveRequestToPending(SupplyRequest *request)
         request->setStatus(RequestStatus::PENDING);
     }
 }
-
 void MedicalWareHouse::moveRequestToInProcess(SupplyRequest *request)
 {
     auto it = std::find(pendingRequests.begin(), pendingRequests.end(), request);
@@ -374,7 +600,6 @@ void MedicalWareHouse::moveRequestToInProcess(SupplyRequest *request)
         throw std::runtime_error("Request not found in pending requests");
     }
 }
-
 void MedicalWareHouse::moveRequestToCompleted(SupplyRequest *request)
 {
     auto it = std::find(inProcessRequests.begin(), inProcessRequests.end(), request);
@@ -388,13 +613,11 @@ void MedicalWareHouse::moveRequestToCompleted(SupplyRequest *request)
         throw std::runtime_error("Request not found in in-process requests");
     }
 }
-
 void MedicalWareHouse::eraseFromPending(SupplyRequest *request)
 {
     if (std::find(pendingRequests.begin(), pendingRequests.end(), request) != pendingRequests.end())
         pendingRequests.erase(std::remove(pendingRequests.begin(), pendingRequests.end(), request), pendingRequests.end());
 }
-
 void MedicalWareHouse::setRequest(SupplyRequest *request)
 {
     if (std::find(inProcessRequests.begin(), inProcessRequests.end(), request) != inProcessRequests.end())

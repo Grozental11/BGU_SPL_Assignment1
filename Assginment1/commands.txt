@@ -9,3 +9,7 @@ log
 close
 backup
 restore
+
+valgrind --leak-check=full --show-reachable=yes -s bin/medical_warehouse ./configFile.txt 
+
+./bin/medical_warehouse ./configFile.txt

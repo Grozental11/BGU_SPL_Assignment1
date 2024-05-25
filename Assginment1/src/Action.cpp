@@ -13,7 +13,7 @@
 using namespace std;
 
 // CoreAction
-CoreAction::CoreAction() : status(ActionStatus::ERROR) {}
+CoreAction::CoreAction() : errorMsg(""), status(ActionStatus::ERROR) {}
 ActionStatus CoreAction::getStatus() const { return status; }
 void CoreAction::complete() { status = ActionStatus::COMPLETED; }
 void CoreAction::error(string errorMsg)
@@ -274,40 +274,8 @@ void Close::act(MedicalWareHouse &medWareHouse)
         << ", Beneficiary ID: " <<request->getBeneficiaryId() 
         << ", Status: " << request->getStatusString() << std::endl;
     }
-    for (SupplyRequest *request : medWareHouse.getPendingRequests())
-    {
-        delete request;
-    }
-    for (SupplyRequest *request : medWareHouse.getInProcessRequests())
-    {
-        delete request;
-    }
-    for (SupplyRequest *request : medWareHouse.getCompletedRequests())
-    {
-        delete request;
-    }
-    medWareHouse.getPendingRequests().clear();
-    medWareHouse.getInProcessRequests().clear();
-    medWareHouse.getCompletedRequests().clear();
-
+    
     medWareHouse.close();
-
-    for (Volunteer *volunteer : medWareHouse.getVolunteers())
-    {
-        delete volunteer;
-    }
-
-    medWareHouse.getVolunteers().clear();
-
-    // // Free all allocated memory for beneficiaries
-    // for (Beneficiary *beneficiary : medWareHouse.getBeneficiaries())
-    // {
-    //     delete beneficiary;
-    // }
-
-    // // Clear the beneficiaries vector
-    // medWareHouse.getBeneficiaries().clear();
-
     complete();
 }
 

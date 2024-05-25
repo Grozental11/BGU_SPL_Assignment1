@@ -23,6 +23,7 @@ public:
     virtual void act(MedicalWareHouse &medWareHouse) = 0;
     virtual string toString() const = 0;
     virtual CoreAction *clone() const = 0;
+    virtual ~CoreAction() = default; // Virtual destructor
 
 protected:
     void complete();
