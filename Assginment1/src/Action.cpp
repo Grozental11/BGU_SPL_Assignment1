@@ -1,6 +1,6 @@
 #include <string>
 #include <vector>
-#include "MedicalWarehouse.h"
+#include <MedicalWarehouse.h>
 #include "Action.h"
 #include "Beneficiary.h"
 #include "SupplyRequest.h"

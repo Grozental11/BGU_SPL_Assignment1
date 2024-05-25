@@ -1,0 +1,108 @@
+root@93ae03f2590a:/workspaces/BGU_SPL/Assginment1# make      
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/SupplyRequest.o src/SupplyRequest.cpp
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Action.o src/Action.cpp
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/volunteer.o src/volunteer.cpp
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/Beneficiary.o src/Beneficiary.cpp
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/main.o src/main.cpp
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -c -o bin/MedicalWarehouse.o src/MedicalWarehouse.cpp
+g++ -g -Wall -Weffc++ -std=c++11 -Iinclude -o bin/medical_warehouse bin/SupplyRequest.o bin/Action.o bin/volunteer.o bin/Beneficiary.o bin/main.o bin/MedicalWarehouse.o
+root@93ae03f2590a:/workspaces/BGU_SPL/Assginment1# valgrind --leak-check=full --show-reachable=yes -s bin/medical_warehouse ./configFile.txt 
+==829== Memcheck, a memory error detector
+==829== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==829== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==829== Command: bin/medical_warehouse ./configFile.txt
+==829== 
+Medical services are now open!
+> request 0
+> request 0
+> request 18
+Error: Cannot place this request
+> requestStatus 0
+Request ID: 0
+Status: PENDING
+Beneficiary ID: 0
+Inventory Manager: None
+Courier: None
+
+> requestStatus 3
+Error: Request does not exist.
+> step 2
+> requestStatus 0
+Request ID: 0
+Status: COLLECTING
+Beneficiary ID: 0
+Inventory Manager: 0
+Courier: None
+
+> requestStatus 1
+Request ID: 1
+Status: COLLECTING
+Beneficiary ID: 0
+Inventory Manager: 1
+Courier: None
+
+> request 1
+> requestStatus 3
+Error: Request does not exist.
+> request 1
+Error: Cannot place this request
+> 
+> requestStatus 2
+Request ID: 2
+Status: PENDING
+Beneficiary ID: 1
+Inventory Manager: None
+Courier: None
+
+> step 2
+> requestStatus 0
+Request ID: 0
+Status: DONE
+Beneficiary ID: 0
+Inventory Manager: 0
+Courier: 2
+
+> requestStatus 2
+Request ID: 2
+Status: COLLECTING
+Beneficiary ID: 1
+Inventory Manager: 0
+Courier: None
+
+> step 5
+> requestStatus 2
+Request ID: 2
+Status: DONE
+Beneficiary ID: 1
+Inventory Manager: 0
+Courier: 2
+
+> requestStatus 1
+Request ID: 1
+Status: COLLECTING
+Beneficiary ID: 0
+Inventory Manager: 1
+Courier: None
+
+> step 10
+> requestStatus 1
+Request ID: 1
+Status: DONE
+Beneficiary ID: 0
+Inventory Manager: 1
+Courier: 2
+
+> backup
+> close
+Request ID: 0, Beneficiary ID: 0, Status: DONE
+Request ID: 2, Beneficiary ID: 1, Status: DONE
+Request ID: 1, Beneficiary ID: 0, Status: DONE
+==829== 
+==829== HEAP SUMMARY:
+==829==     in use at exit: 0 bytes in 0 blocks
+==829==   total heap usage: 151 allocs, 151 frees, 94,574 bytes allocated
+==829== 
+==829== All heap blocks were freed -- no leaks are possible
+==829== 
+==829== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+root@93ae03f2590a:/workspaces/BGU_SPL/Assginment1# 

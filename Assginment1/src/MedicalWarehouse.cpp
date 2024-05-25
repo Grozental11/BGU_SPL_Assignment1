@@ -36,13 +36,11 @@ MedicalWareHouse ::~MedicalWareHouse()
     actionsLog.clear();
 
     for (size_t i = 0; i < volunteers.size(); ++i) {
-        std::cout << "Deleting volunteers" << std::endl;
         delete volunteers[i];
     }
     volunteers.clear();
 
     for (size_t i = 0; i < pendingRequests.size(); ++i) {
-        std::cout << "Deleting pendingRequests" << std::endl;
         delete pendingRequests[i];
     }
     pendingRequests.clear();
