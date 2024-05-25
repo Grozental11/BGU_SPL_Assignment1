@@ -26,23 +26,14 @@ string CoreAction::getErrorMsg() const { return errorMsg; }
 
 // SimulateStep
 SimulateStep::SimulateStep(int numOfSteps) : numOfSteps(numOfSteps) {}
-void SimulateStep::act(MedicalWareHouse &medWareHouse)
-{
-    for (int i = 0; i < numOfSteps; i++)
-    {
-        std::cout << "Step " << i + 1 << std::endl;
-
+void SimulateStep::act(MedicalWareHouse &medWareHouse) {
+    for (int i = 0; i < numOfSteps; i++) {
         // Step 1: Assign pending requests to available Inventory Managers
-        for (SupplyRequest *supplyRequest : medWareHouse.getPendingRequests())
-        {
-            if (supplyRequest->getStatus() == RequestStatus::PENDING)
-            {
-                for (Volunteer *v : medWareHouse.getVolunteers())
-                {
-                    if (auto *inventoryManager = dynamic_cast<InventoryManagerVolunteer *>(v))
-                    {
-                        if (inventoryManager->canTakeRequest(*supplyRequest))
-                        {
+        for (SupplyRequest *supplyRequest : medWareHouse.getPendingRequests()) {
+            if (supplyRequest && supplyRequest->getStatus() == RequestStatus::PENDING) {
+                for (Volunteer *v : medWareHouse.getVolunteers()) {
+                    if (auto *inventoryManager = dynamic_cast<InventoryManagerVolunteer *>(v)) {
+                        if (inventoryManager && inventoryManager->canTakeRequest(*supplyRequest)) {
                             inventoryManager->acceptRequest(*supplyRequest);
                             supplyRequest->setStatus(RequestStatus::COLLECTING);
                             supplyRequest->setInventoryManagerId(inventoryManager->getId());
@@ -54,28 +45,21 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
             }
         }
 
-        // Step 2: Process all volunteers' steps (includes Inventory Managers collecting and Couriers delivering)
-        for (Volunteer *v : medWareHouse.getVolunteers())
-        {
-            //std::cout << "Volunteer ID: " << v->getId() << " Steping" << std::endl;
-            v->step();
+        // Step 2: Process all Inventory Managers collecting
+        for (Volunteer *volunteer : medWareHouse.getVolunteers()) {
+            if (InventoryManagerVolunteer *invManager = dynamic_cast<InventoryManagerVolunteer *>(volunteer)) {
+                invManager->step();
+            }
         }
 
         // Step 3: Assign collecting requests to available Couriers if Inventory Managers have finished collecting
-        for (SupplyRequest *supplyRequest : medWareHouse.getInProcessRequests())
-        {
-            if (supplyRequest->getStatus() == RequestStatus::COLLECTING)
-            {
+        for (SupplyRequest *supplyRequest : medWareHouse.getInProcessRequests()) {
+            if (supplyRequest && supplyRequest->getStatus() == RequestStatus::COLLECTING) {
                 Volunteer &inventoryManager = medWareHouse.getVolunteer(supplyRequest->getInventoryManagerId());
-                //std::cout << "Inventory Manager ID: " << inventoryManager.getId() << " isBusy() " << inventoryManager.isBusy() << std::endl;
-                if (!inventoryManager.isBusy())
-                {
-                    for (Volunteer *v : medWareHouse.getVolunteers())
-                    {
-                        if (auto *courier = dynamic_cast<CourierVolunteer *>(v))
-                        {
-                            if (courier->canTakeRequest(*supplyRequest))
-                            {
+                if (!inventoryManager.isBusy()) {
+                    for (Volunteer *v : medWareHouse.getVolunteers()) {
+                        if (auto *courier = dynamic_cast<CourierVolunteer *>(v)) {
+                            if (courier && courier->canTakeRequest(*supplyRequest)) {
                                 courier->acceptRequest(*supplyRequest);
                                 supplyRequest->setStatus(RequestStatus::ON_THE_WAY);
                                 supplyRequest->setCourierId(courier->getId());
@@ -87,17 +71,20 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
             }
         }
 
-        // Step 4: Check for completed requests and update their status
-        for (Volunteer *v : medWareHouse.getVolunteers())
-        {
-            if (v->hasFinishedRequest())
-            {
+        // Step 4: Process all Couriers
+        for (Volunteer *volunteer : medWareHouse.getVolunteers()) {
+            if (CourierVolunteer *courier = dynamic_cast<CourierVolunteer *>(volunteer)) {
+                courier->step();
+            }
+        }
+
+        // Step 5: Check for completed requests and update their status
+        for (Volunteer *v : medWareHouse.getVolunteers()) {
+            if (v && v->hasFinishedRequest()) {
                 int activeRequestId = v->getActiveRequestId();
-                if (activeRequestId != NO_REQUEST)
-                {
+                if (activeRequestId != NO_REQUEST) {
                     SupplyRequest &supplyRequest = medWareHouse.getRequest(activeRequestId);
-                    if (supplyRequest.getStatus() == RequestStatus::ON_THE_WAY)
-                    {
+                    if (supplyRequest.getStatus() == RequestStatus::ON_THE_WAY) {
                         supplyRequest.setStatus(RequestStatus::DONE);
                         medWareHouse.moveRequestToCompleted(&supplyRequest);
                     }
@@ -110,91 +97,6 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse)
     medWareHouse.addAction(this);
 }
 
-// void SimulateStep::act(MedicalWareHouse &medWareHouse)
-// {
-//     for (int i = 0; i < numOfSteps; i++)
-//     {
-//         std::cout << "Step " << i + 1 << std::endl;
-
-//         // Step 1: Assign pending requests to available Inventory Managers
-//         for (SupplyRequest *supplyRequest : medWareHouse.getPendingRequests())
-//         {
-//             if (supplyRequest->getStatus() == RequestStatus::PENDING)
-//             {
-//                 for (Volunteer *v : medWareHouse.getVolunteers())
-//                 {
-//                     if (auto *inventoryManager = dynamic_cast<InventoryManagerVolunteer *>(v))
-//                     {
-//                         if (inventoryManager->canTakeRequest(*supplyRequest))
-//                         {
-//                             inventoryManager->acceptRequest(*supplyRequest);
-//                             supplyRequest->setStatus(RequestStatus::COLLECTING);
-//                             supplyRequest->setInventoryManagerId(inventoryManager->getId());
-//                             medWareHouse.moveRequestToInProcess(supplyRequest);
-//                             break;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-
-//         // Step 2: Process all volunteers' steps (includes Inventory Managers collecting and Couriers delivering)
-//         for (Volunteer *v : medWareHouse.getVolunteers())
-//         {
-//             v->step();
-//         }
-
-//         // Step 3: Assign collecting requests to available Couriers if Inventory Managers have finished collecting
-//         for (SupplyRequest *supplyRequest : medWareHouse.getInProcessRequests())
-//         {
-//             if (supplyRequest->getStatus() == RequestStatus::COLLECTING)
-//             {
-//                 Volunteer &inventoryManager = medWareHouse.getVolunteer(supplyRequest->getInventoryManagerId());
-//                 std::cout << "Inventory Manager ID: " << inventoryManager.getId() << "Has Finished? "<<inventoryManager.hasFinishedRequest()<< std::endl;
-//                 if (!inventoryManager.isBusy() && inventoryManager.hasFinishedRequest())
-//                 {
-//                     for (Volunteer *v : medWareHouse.getVolunteers())
-//                     {
-//                         if (auto *courier = dynamic_cast<CourierVolunteer *>(v))
-//                         {
-//                             if (courier->canTakeRequest(*supplyRequest))
-//                             {
-//                                 courier->acceptRequest(*supplyRequest);
-//                                 supplyRequest->setStatus(RequestStatus::ON_THE_WAY);
-//                                 supplyRequest->setCourierId(courier->getId());
-//                                 break;
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-
-//         // Step 4: Check for completed requests and update their status
-//         for (Volunteer *v : medWareHouse.getVolunteers())
-//         {
-//             if (v->hasFinishedRequest())
-//             {
-//                 int activeRequestId = v->getActiveRequestId();
-//                 if (activeRequestId != NO_REQUEST)
-//                 {
-//                     SupplyRequest &supplyRequest = medWareHouse.getRequest(activeRequestId);
-//                     if (supplyRequest.getStatus() == RequestStatus::ON_THE_WAY)
-//                     {
-//                         supplyRequest.setStatus(RequestStatus::DONE);
-//                         medWareHouse.moveRequestToCompleted(&supplyRequest);
-//                     }
-//                     v->setNoActiveRequest();
-//                 }
-//             }
-//         }
-//     }
-//     complete();
-//     //error("SimulateStep::act");
-//     medWareHouse.addAction(this);
-// }
-
-
 std::string SimulateStep::toString() const { return "SimulateStep"; }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 
@@ -206,9 +108,7 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
     if (beneficiary.canMakeRequest())
     {
         int requestID = medWareHouse.getNextRequestID();
-        //std::cout << requestID << std::endl;
         SupplyRequest *supplyRequest = new SupplyRequest(requestID, beneficiaryId, beneficiary.getBeneficiaryDistance());
-        //std::cout << supplyRequest << std::endl;
         auto result = beneficiary.addRequest(requestID);
         medWareHouse.addRequest(supplyRequest);
         if (result == -1)
@@ -226,8 +126,6 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
     }
     complete();
     medWareHouse.addAction(this);
-
-    // std::cout << "Request added successfully" << std::endl;
 }
 
 // HELP: I'm not sure about this function
@@ -295,7 +193,6 @@ void PrintRequestStatus::act(MedicalWareHouse &medWareHouse)
     }
     catch (const std::exception &e)
     {
-        //std::cerr << "Error: " << e.what() << std::endl;
         error("Request does not exist.");
     }
     medWareHouse.addAction(this);
@@ -358,55 +255,48 @@ string PrintActionsLog::toString() const { return "PrintActionsLog"; }
 Close::Close() {}
 void Close::act(MedicalWareHouse &medWareHouse)
 {
-    std::cout << "Closing warehouse and printing all requests status..." << std::endl;
-
-    // Print the status of all pending requests
     for (SupplyRequest *request : medWareHouse.getPendingRequests())
     {
-        std::cout << request->toString() << std::endl;
+        std::cout << "Request ID: " << request->getId() 
+        << ", Beneficiary ID: " <<request->getBeneficiaryId() 
+        << ", "<< "Status: " <<request->getStatusString() << std::endl;
     }
 
-    // Print the status of all in-process requests
     for (SupplyRequest *request : medWareHouse.getInProcessRequests())
     {
-        std::cout << request->toString() << std::endl;
-    }
-
-    // Print the status of all completed requests
-    for (SupplyRequest *request : medWareHouse.getCompletedRequests())
-    {
-        std::cout << request->toString() << std::endl;
-    }
-
-    // Free all allocated memory for requests
-    for (SupplyRequest *request : medWareHouse.getPendingRequests())
-    {
-        delete request;
-    }
-    for (SupplyRequest *request : medWareHouse.getInProcessRequests())
-    {
-        delete request;
+        std::cout << "Request ID: " << request->getId() 
+        << ", Beneficiary ID: " <<request->getBeneficiaryId() 
+        << ", " << "Status: " << request->getStatusString() << std::endl;
     }
     for (SupplyRequest *request : medWareHouse.getCompletedRequests())
     {
+        std::cout << "Request ID: " << request->getId() 
+        << ", Beneficiary ID: " <<request->getBeneficiaryId() 
+        << ", Status: " << request->getStatusString() << std::endl;
+    }
+    for (SupplyRequest *request : medWareHouse.getPendingRequests())
+    {
         delete request;
     }
-
-    // Clear the request vectors
+    for (SupplyRequest *request : medWareHouse.getInProcessRequests())
+    {
+        delete request;
+    }
+    for (SupplyRequest *request : medWareHouse.getCompletedRequests())
+    {
+        delete request;
+    }
     medWareHouse.getPendingRequests().clear();
     medWareHouse.getInProcessRequests().clear();
     medWareHouse.getCompletedRequests().clear();
 
-    // Set the warehouse status to closed
     medWareHouse.close();
 
-    // Free all allocated memory for volunteers
     for (Volunteer *volunteer : medWareHouse.getVolunteers())
     {
         delete volunteer;
     }
 
-    // Clear the volunteers vector
     medWareHouse.getVolunteers().clear();
 
     // // Free all allocated memory for beneficiaries

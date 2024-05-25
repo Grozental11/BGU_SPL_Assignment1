@@ -33,6 +33,7 @@ public:
     // My functions
     int getDistance() const;
     SupplyRequest();
+    const string getStatusString();
 
 private:
     const int id;

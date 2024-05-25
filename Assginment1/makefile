@@ -12,7 +12,7 @@ BINDIR = bin
 # Source and object files
 SOURCES := $(wildcard $(SRCDIR)/*.cpp)
 OBJECTS := $(patsubst $(SRCDIR)/%.cpp, $(BINDIR)/%.o, $(SOURCES))
-TARGET = $(BINDIR)/warehouse
+TARGET = $(BINDIR)/medical_warehouse
 
 # Default target
 all: $(TARGET)
@@ -26,7 +26,7 @@ $(BINDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 # Clean
-#clean:
-#	rm -f $(BINDIR)/*.o $(TARGET)
+clean:
+	rm -f $(BINDIR)/*.o $(TARGET)
 
 .PHONY: all clean

@@ -55,16 +55,11 @@ void InventoryManagerVolunteer::step()
     if (activeRequestId != NO_REQUEST)
     {
         timeLeft -= 1;
-        //std::cout << "(InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
-        //std::cout << "(InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
-        // ATT: Do I need to check if timeLeft is less than 0?
         if (timeLeft == 0)
         {
             completedRequestId = activeRequestId;
             activeRequestId = NO_REQUEST;
         }
-        //std::cout << "AFTER (InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
-        //std::cout << "AFTER (InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
     }
 }
 int InventoryManagerVolunteer::getCoolDown() const
@@ -102,9 +97,8 @@ string InventoryManagerVolunteer::toString() const
 {
     std::ostringstream oss;
     oss << "Volunteer ID: " << getId() << "\n";
-    oss << "Name: " << getName() << "\n";
-    oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
-    oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
+    oss << "isBusy: " << (isBusy() ? "True" : "False") << "\n";
+    oss << "Request ID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
     oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()-1) : "None") << "\n";
     return oss.str();
 }
@@ -155,24 +149,10 @@ void CourierVolunteer::acceptRequest(const SupplyRequest &request)
 {
     activeRequestId = request.getId();
     distanceLeft = request.getDistance();
-    //std::cout << "CourierVolunteer ID " << getId() << "Accepted Request ID: " << activeRequestId << " with Distance Left: " << distanceLeft << std::endl;
 }
 // bool CourierVolunteer::coolDownFinished()
 // {
 //     return distanceLeft == 0;
-// }
-
-// void CourierVolunteer::step()
-// {
-//     distanceLeft = distanceLeft - distancePerStep;
-//     std::cout << "(CourierVolunteer) Distance Left: " << distanceLeft << " " << activeRequestId << std::endl;
-//     if (distanceLeft <= 0)
-//     {
-//         std::cout << "(CourierVolunteer) Request Completed " << activeRequestId << std::endl;
-//         distanceLeft = 0;
-//         completedRequestId = activeRequestId;
-//         // activeRequestId = NO_REQUEST;
-//     }
 // }
 
 void CourierVolunteer::step()
@@ -186,9 +166,7 @@ void CourierVolunteer::step()
         }
         if (distanceLeft == 0)
         {
-            std::cout << "(CourierVolunteer) Request Completed activeRequestId: " << activeRequestId << std::endl;
             completedRequestId = activeRequestId;
-            std::cout << "(CourierVolunteer) Request Completed completedRequestId: " << completedRequestId << std::endl;
         }
     }
 }
@@ -196,11 +174,9 @@ void CourierVolunteer::step()
 // ATT: I'm not sure of the format of the string, need to verify
 string CourierVolunteer::toString() const
 {
-    //return "CourierVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
     std::ostringstream oss;
-    oss << "Courier ID: " << getId() << "\n";
-    oss << "Name: " << getName() << "\n";
-    oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
+    oss << "Volunteer ID: " << getId() << "\n";
+    oss << "isBusy: " << (isBusy() ? "True" : "False") << "\n";
     oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
     oss << "distanceLeft: " << distanceLeft << "\n";
     oss << "maxDistance: " << maxDistance << "\n";

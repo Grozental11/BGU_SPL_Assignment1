@@ -131,7 +131,7 @@ void MedicalWareHouse::start()
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
-                // addAction(requestAction);
+                addAction(requestAction);
             }
             else if (actionType == "step")
             {
@@ -169,7 +169,7 @@ void MedicalWareHouse::start()
                 }
                 PrintRequestStatus *printRequestStatusAction = new PrintRequestStatus(requestId);
                 printRequestStatusAction->act(*this);
-                // addAction(printRequestStatusAction);
+                addAction(printRequestStatusAction);
             }
             else if (actionType == "beneficiaryStatus")
             {
@@ -253,22 +253,17 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
     {
         if (beneficiary->getId() == beneficiaryId)
         {
-            std::cout << "Found beneficiary" << std::endl;
             return *beneficiary;
         }
     }
-    std::cout << "Beneficiary not found" << std::endl;
 }
 
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
     for (Volunteer *volunteer : volunteers)
     {
-        // std::cout << volunteer << std::endl;
-        // std::cout << "Volunteer ID - " << volunteer->getId() << std::endl;
         if (volunteer->getId() == volunteerId)
         {
-            std::cout << "Found Volunteer in MedicalWareHouse" << std::endl;
             return *volunteer;
         }
     }

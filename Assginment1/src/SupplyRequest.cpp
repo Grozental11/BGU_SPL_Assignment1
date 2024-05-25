@@ -1,5 +1,5 @@
 #include <iostream>
-#include "SupplyRequest.h"
+#include <SupplyRequest.h>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -35,6 +35,21 @@ void SupplyRequest::setCourierId(int CourierId)
 int SupplyRequest::getInventoryManagerId() const { return inventoryManagerId; }
 int SupplyRequest::getCourierId() const { return CourierId; }
 RequestStatus SupplyRequest::getStatus() const { return status; }
+const string SupplyRequest::getStatusString()
+{
+    switch (status)
+    {
+    case RequestStatus::PENDING:
+        return "PENDING";
+    case RequestStatus::COLLECTING:
+        return "COLLECTING";
+    case RequestStatus::ON_THE_WAY:
+        return "ON THE WAY";
+    case RequestStatus::DONE:
+        return "DONE";
+    }
+    return "INVALID";
+}
 const std::string SupplyRequest::toString() const
 {
     std::ostringstream oss;
@@ -44,16 +59,16 @@ const std::string SupplyRequest::toString() const
     switch (getStatus())
     {
     case RequestStatus::PENDING:
-        oss << "Pending";
+        oss << "PENDING";
         break;
     case RequestStatus::COLLECTING:
-        oss << "Collecting";
+        oss << "COLLECTING";
         break;
     case RequestStatus::ON_THE_WAY:
-        oss << "On the Way";
+        oss << "ON THE WAY";
         break;
     case RequestStatus::DONE:
-        oss << "Done";
+        oss << "DONE";
         break;
     }
     oss << "\n";
@@ -77,8 +92,6 @@ const std::string SupplyRequest::toString() const
     {
         oss << "Courier: None" << "\n";
     }
-    oss << "distanceLeft: " << getDistance() << "\n";
-
     return oss.str();
 }
 
