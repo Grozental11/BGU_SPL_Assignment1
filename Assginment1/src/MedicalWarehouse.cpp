@@ -288,13 +288,11 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
             {
                 HospitalBeneficiary *hospitalBeneficiary = new HospitalBeneficiary(getNextBeneficiaryId(), name, distance, maxRequests);
                 addNewBeneficiary(hospitalBeneficiary);
-                std::cout << "Adding hospital beneficiary: " << hospitalBeneficiary->getId() << ", " << hospitalBeneficiary->getName() << std::endl;
             }
             else if (type == "clinic")
             {
                 ClinicBeneficiary *clinicBeneficiary = new ClinicBeneficiary(getNextBeneficiaryId(), name, distance, maxRequests);
                 addNewBeneficiary(clinicBeneficiary);
-                std::cout << "Adding clinic beneficiary: " << clinicBeneficiary->getId() << ", " << clinicBeneficiary->getName() << std::endl;
             }
         }
         else if (firstWord == "volunteer")
@@ -315,25 +313,18 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
                 }
             } // need to add checks for invalid input
 
-            // std::cout << "Name: " << name << " type: " << type << std::endl;
             if (type == "inventory manager")
             {
                 iss >> coolDown;
-                std::cout << "Cool Down: " << coolDown << std::endl;
                 InventoryManagerVolunteer *inventoryManagerVolunteer = new InventoryManagerVolunteer(getNextVolunteerId(), name, coolDown);
                 volunteers.push_back(inventoryManagerVolunteer);
-                std::cout << "Adding inventory manager: " << inventoryManagerVolunteer -> toString() << std::endl;
-                // std::cout << "Adding inventory manager: " << inventoryManagerVolunteer->getId() << ", " << inventoryManagerVolunteer->getName() << std::endl;
             }
             else if (type == "courier")
             {
                 maxDistance = std::stoi(type2); // Convert type2 to an integer
                 iss >> distancePerStep;
-                //std::cout << "Max Distance: " << maxDistance << " Distance Per Step: " << distancePerStep << std::endl;
                 CourierVolunteer *courierVolunteer = new CourierVolunteer(getNextVolunteerId(), name, maxDistance, distancePerStep);
                 volunteers.push_back(courierVolunteer);
-                std::cout << "Adding courier: " << courierVolunteer -> toString() << std::endl;
-                // std::cout << "Adding courier: " << courierVolunteer->getId() << ", " << courierVolunteer->getName() << courierVolunteer->getDistancePerStep() << std::endl;
             }
         }
         firstWord.clear();
@@ -375,9 +366,12 @@ void MedicalWareHouse::start()
                 {
                     throw invalid_argument("Cannot place this request");
                 }
+                if(beneficiaryId < 0 || beneficiaryId > static_cast<int>(Beneficiaries.size())-1)
+                {
+                    beneficiaryId = -1;
+                }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
-                
                 
             }
             else if (actionType == "step")
@@ -485,6 +479,17 @@ void MedicalWareHouse::addAction(CoreAction *action)
 {
     actionsLog.push_back(action);
 }
+bool MedicalWareHouse::isBeneficiaryRegistered(int beneficiaryId) const
+{
+    for (auto &beneficiary : Beneficiaries)
+    {
+        if (beneficiary->getId() == beneficiaryId)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
 {
     for (auto &beneficiary : Beneficiaries)
@@ -494,7 +499,7 @@ Beneficiary &MedicalWareHouse::getBeneficiary(int beneficiaryId) const
             return *beneficiary;
         }
     }
-    return *Beneficiaries[0];
+    throw std::runtime_error("Beneficiary not found");
 }
 Volunteer &MedicalWareHouse::getVolunteer(int volunteerId) const
 {
@@ -535,7 +540,6 @@ int MedicalWareHouse::getNextBeneficiaryId()
 void MedicalWareHouse::addNewBeneficiary(Beneficiary *beneficiary)
 {
     Beneficiaries.push_back(beneficiary);
-    std::cout << "Beneficiarie added" << std::endl;
 }
 int MedicalWareHouse::getVolunteerCounter() { return volunteerCounter; }
 int MedicalWareHouse::getNextVolunteerId()

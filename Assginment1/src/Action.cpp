@@ -104,28 +104,29 @@ SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 AddRequset::AddRequset(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
 void AddRequset::act(MedicalWareHouse &medWareHouse)
 {
-    Beneficiary &beneficiary = medWareHouse.getBeneficiary(beneficiaryId);
-    if (beneficiary.canMakeRequest())
+    if (medWareHouse.isBeneficiaryRegistered(beneficiaryId))
     {
-        int requestID = medWareHouse.getNextRequestID();
-        SupplyRequest *supplyRequest = new SupplyRequest(requestID, beneficiaryId, beneficiary.getBeneficiaryDistance());
-        auto result = beneficiary.addRequest(requestID);
-        medWareHouse.addRequest(supplyRequest);
-        if (result == -1)
+        Beneficiary &beneficiary = medWareHouse.getBeneficiary(beneficiaryId);
+        if (beneficiary.canMakeRequest())
         {
-            error("Cant place this request");
+            int requestID = medWareHouse.getNextRequestID();
+            SupplyRequest *supplyRequest = new SupplyRequest(requestID, beneficiaryId, beneficiary.getBeneficiaryDistance());
+            auto result = beneficiary.addRequest(requestID);
+            medWareHouse.addRequest(supplyRequest);
+            if (result == -1)
+            {
+                error("Cannot place this request");
+                medWareHouse.addAction(this);
+                return;
+            }
+            complete();
             medWareHouse.addAction(this);
             return;
         }
     }
-    else
-    {
-        error("Cant place this request");
-        medWareHouse.addAction(this);
-        return;
-    }
-    complete();
-    medWareHouse.addAction(this);
+            error("Cannot place this request");
+            medWareHouse.addAction(this);
+            return;
 }
 
 // HELP: I'm not sure about this function

@@ -31,6 +31,7 @@ public:
     void open();
     // Added Functions
     void initializeFromConfig(const std::string &configFilePath);
+    bool isBeneficiaryRegistered(int beneficiaryId) const;
 
     int getBeneficiaryCounter() const;
     void addNewBeneficiary(Beneficiary *beneficiary); // * || & ??
