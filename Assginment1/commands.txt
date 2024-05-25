@@ -1,0 +1,11 @@
+## commands ##
+request
+step
+register
+requestStatus
+beneficiaryStatus
+volunteerStatus
+log
+close
+backup
+restore

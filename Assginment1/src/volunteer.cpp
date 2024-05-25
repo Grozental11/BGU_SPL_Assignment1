@@ -30,10 +30,21 @@ bool Volunteer::isBusy() const
 {
     return activeRequestId != NO_REQUEST;
 }
+bool Volunteer::hasFinishedRequest()
+{
+    if (activeRequestId == completedRequestId)
+        return true;
+    return false;
+}
+
+void Volunteer::setActiveRequestId(int activeRequestId)
+{
+    this->activeRequestId = activeRequestId;
+}
 
 // InventoryManagerVolunteer implementation
 InventoryManagerVolunteer::InventoryManagerVolunteer(int id, const string &name, int coolDown)
-    : Volunteer(id, name), coolDown(coolDown), timeLeft(0) {}
+    : Volunteer(id, name), coolDown(coolDown+1), timeLeft(0) {}
 
 InventoryManagerVolunteer *InventoryManagerVolunteer::clone() const
 {
@@ -43,13 +54,17 @@ void InventoryManagerVolunteer::step()
 {
     if (activeRequestId != NO_REQUEST)
     {
-        timeLeft--;
+        timeLeft -= 1;
+        //std::cout << "(InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
+        //std::cout << "(InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
         // ATT: Do I need to check if timeLeft is less than 0?
         if (timeLeft == 0)
         {
             completedRequestId = activeRequestId;
             activeRequestId = NO_REQUEST;
         }
+        //std::cout << "AFTER (InventoryManagerVolunteer) timeLeft: " << timeLeft << std::endl;
+        //std::cout << "AFTER (InventoryManagerVolunteer) activeRequestId: " << activeRequestId << std::endl;
     }
 }
 int InventoryManagerVolunteer::getCoolDown() const
@@ -62,12 +77,11 @@ int InventoryManagerVolunteer::getTimeLeft() const
 }
 bool InventoryManagerVolunteer::decreaseCoolDown()
 {
-    if (timeLeft > 0)
-    {
-        timeLeft--;
-        return false;
+    timeLeft -= 1;
+    if (timeLeft <= 0) {
+        return true;
     }
-    return true;
+    return false; 
 }
 // ATT: Im not sure I understood the question correctly, need to verify
 bool InventoryManagerVolunteer::hasRequestsLeft() const
@@ -91,7 +105,7 @@ string InventoryManagerVolunteer::toString() const
     oss << "Name: " << getName() << "\n";
     oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
     oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
-    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()) : "None") << "\n";
+    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()-1) : "None") << "\n";
     return oss.str();
 }
 
@@ -118,11 +132,12 @@ int CourierVolunteer::getDistancePerStep() const
 bool CourierVolunteer::decreaseDistanceLeft()
 {
     distanceLeft -= distancePerStep;
-    if (distanceLeft > 0)
+
+    if (distanceLeft <= 0)
     {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 bool CourierVolunteer::hasRequestsLeft() const
 {
@@ -130,22 +145,50 @@ bool CourierVolunteer::hasRequestsLeft() const
 }
 bool CourierVolunteer::canTakeRequest(const SupplyRequest &request) const
 {
-    return !isBusy() && request.getDistance() <= maxDistance; // request is yet to be implemented
+    if (!isBusy() && request.getDistance() <= maxDistance && request.getStatus() == RequestStatus::COLLECTING)
+    {
+        return true;
+    }
+    return false;
 }
 void CourierVolunteer::acceptRequest(const SupplyRequest &request)
 {
     activeRequestId = request.getId();
     distanceLeft = request.getDistance();
+    //std::cout << "CourierVolunteer ID " << getId() << "Accepted Request ID: " << activeRequestId << " with Distance Left: " << distanceLeft << std::endl;
 }
+// bool CourierVolunteer::coolDownFinished()
+// {
+//     return distanceLeft == 0;
+// }
+
+// void CourierVolunteer::step()
+// {
+//     distanceLeft = distanceLeft - distancePerStep;
+//     std::cout << "(CourierVolunteer) Distance Left: " << distanceLeft << " " << activeRequestId << std::endl;
+//     if (distanceLeft <= 0)
+//     {
+//         std::cout << "(CourierVolunteer) Request Completed " << activeRequestId << std::endl;
+//         distanceLeft = 0;
+//         completedRequestId = activeRequestId;
+//         // activeRequestId = NO_REQUEST;
+//     }
+// }
+
 void CourierVolunteer::step()
 {
-    if (activeRequestId != NO_REQUEST)
+    if (activeRequestId != NO_REQUEST && distanceLeft >= 0)
     {
         distanceLeft -= distancePerStep;
-        if (distanceLeft <= 0)
+        if (distanceLeft < 0)
         {
+            distanceLeft = 0;
+        }
+        if (distanceLeft == 0)
+        {
+            std::cout << "(CourierVolunteer) Request Completed activeRequestId: " << activeRequestId << std::endl;
             completedRequestId = activeRequestId;
-            activeRequestId = NO_REQUEST;
+            std::cout << "(CourierVolunteer) Request Completed completedRequestId: " << completedRequestId << std::endl;
         }
     }
 }
@@ -153,5 +196,19 @@ void CourierVolunteer::step()
 // ATT: I'm not sure of the format of the string, need to verify
 string CourierVolunteer::toString() const
 {
-    return "CourierVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+    //return "CourierVolunteer: " + getName() + " (ID: " + std::to_string(getId()) + ")";
+    std::ostringstream oss;
+    oss << "Courier ID: " << getId() << "\n";
+    oss << "Name: " << getName() << "\n";
+    oss << "IsBusy: " << (isBusy() ? "True" : "False") << "\n";
+    oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
+    oss << "distanceLeft: " << distanceLeft << "\n";
+    oss << "maxDistance: " << maxDistance << "\n";
+    return oss.str();
+    
+}
+
+void Volunteer::setNoActiveRequest()
+{
+    activeRequestId = NO_REQUEST;
 }

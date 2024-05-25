@@ -7,7 +7,7 @@
 using namespace std;
 
 // SupplyRequest implementation
-SupplyRequest::SupplyRequest() : id(-1), beneficiaryId(-1), distance(-1), status(RequestStatus::PENDING), inventoryManagerId(NO_VOLUNTEER), CourierId(NO_VOLUNTEER) {}
+SupplyRequest::SupplyRequest() : id(-1), beneficiaryId(-1), distance(), status(RequestStatus::PENDING), inventoryManagerId(NO_VOLUNTEER), CourierId(NO_VOLUNTEER) {}
 
 SupplyRequest::SupplyRequest(int id, int beneficiaryId, int distance)
     : id(id), beneficiaryId(beneficiaryId), distance(distance), status(RequestStatus::PENDING), inventoryManagerId(NO_VOLUNTEER), CourierId(NO_VOLUNTEER) {}
@@ -77,6 +77,7 @@ const std::string SupplyRequest::toString() const
     {
         oss << "Courier: None" << "\n";
     }
+    oss << "distanceLeft: " << getDistance() << "\n";
 
     return oss.str();
 }
