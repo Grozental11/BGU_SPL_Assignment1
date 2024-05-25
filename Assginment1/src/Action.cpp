@@ -97,7 +97,7 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse) {
     medWareHouse.addAction(this);
 }
 
-std::string SimulateStep::toString() const { return "SimulateStep"; }
+std::string SimulateStep::toString() const { return "step" + std::to_string(numOfSteps); }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 
 // AddRequset
@@ -130,7 +130,7 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
 }
 
 // HELP: I'm not sure about this function
-string AddRequset::toString() const { return "AddRequset"; }
+string AddRequset::toString() const { return "request " + std::to_string(beneficiaryId); }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 
 // RegisterBeneficiary
@@ -199,7 +199,7 @@ void PrintRequestStatus::act(MedicalWareHouse &medWareHouse)
     medWareHouse.addAction(this);
 }
 PrintRequestStatus *PrintRequestStatus::clone() const { return new PrintRequestStatus(*this); }
-string PrintRequestStatus::toString() const { return "PrintRequestStatus"; }
+string PrintRequestStatus::toString() const { return "requestStatus " + std::to_string(requestId); }
 
 // PrintBeneficiaryStatus
 PrintBeneficiaryStatus::PrintBeneficiaryStatus(int beneficiaryId) : beneficiaryId(beneficiaryId) {}
@@ -235,7 +235,7 @@ void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse)
     medWareHouse.addAction(this);
 }
 PrintVolunteerStatus *PrintVolunteerStatus::clone() const { return new PrintVolunteerStatus(*this); }
-string PrintVolunteerStatus::toString() const { return "PrintVolunteerStatus"; }
+string PrintVolunteerStatus::toString() const { return "volunteerStatus " + std::to_string(volunteerId); }
 
 // PrintActionsLog
 PrintActionsLog::PrintActionsLog() {}
@@ -254,7 +254,7 @@ void PrintActionsLog::act(MedicalWareHouse &medWareHouse)
     medWareHouse.addAction(this);
 }
 PrintActionsLog *PrintActionsLog::clone() const { return new PrintActionsLog(*this); }
-string PrintActionsLog::toString() const { return "PrintActionsLog"; }
+string PrintActionsLog::toString() const { return "log"; }
 
 // Close
 Close::Close() {}
@@ -301,7 +301,7 @@ void BackupWareHouse::act(MedicalWareHouse &medWareHouse)
     medWareHouse.addAction(this);
 }
 BackupWareHouse *BackupWareHouse::clone() const { return new BackupWareHouse(*this); }
-string BackupWareHouse::toString() const { return "BackupWareHouse"; }
+string BackupWareHouse::toString() const { return "backup"; }
 
 // RestoreWareHouse
 RestoreWareHouse::RestoreWareHouse() {}
@@ -322,4 +322,4 @@ void RestoreWareHouse::act(MedicalWareHouse &medWareHouse)
     }
 }
 RestoreWareHouse *RestoreWareHouse::clone() const { return new RestoreWareHouse(*this); }
-string RestoreWareHouse::toString() const { return "RestoreWareHouse"; }
+string RestoreWareHouse::toString() const { return "restore"; }
