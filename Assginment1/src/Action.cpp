@@ -97,7 +97,7 @@ void SimulateStep::act(MedicalWareHouse &medWareHouse) {
     medWareHouse.addAction(this);
 }
 
-std::string SimulateStep::toString() const { return "step" + std::to_string(numOfSteps); }
+std::string SimulateStep::toString() const { return "step " + std::to_string(numOfSteps); }
 SimulateStep *SimulateStep::clone() const { return new SimulateStep(*this); }
 
 // AddRequset
@@ -180,7 +180,7 @@ void RegisterBeneficiary::act(MedicalWareHouse &medWareHouse)
 }
 
 RegisterBeneficiary *RegisterBeneficiary::clone() const { return new RegisterBeneficiary(*this); }
-string RegisterBeneficiary::toString() const { return "RegisterBeneficiary"; }
+string RegisterBeneficiary::toString() const { return "registerBeneficiary"; }
 
 // PrintRequestStatus
 PrintRequestStatus::PrintRequestStatus(int requestId) : requestId(requestId) {}
@@ -223,7 +223,7 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse)
     medWareHouse.addAction(this);
 }
 PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const { return new PrintBeneficiaryStatus(*this); }
-string PrintBeneficiaryStatus::toString() const { return "PrintBeneficiaryStatus"; }
+string PrintBeneficiaryStatus::toString() const { return "beneficiaryStatus" + std::to_string(beneficiaryId); }
 
 // PrintVolunteerStatus
 PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}
