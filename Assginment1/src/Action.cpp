@@ -124,9 +124,9 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
             return;
         }
     }
-            error("Cannot place this request");
-            medWareHouse.addAction(this);
-            return;
+    error("Cannot place this request");
+    medWareHouse.addAction(this);
+    return;
 }
 
 // HELP: I'm not sure about this function
@@ -215,15 +215,16 @@ void PrintBeneficiaryStatus::act(MedicalWareHouse &medWareHouse)
             std::cout << "Request Status: " << request.getStatusString() << std::endl;
         }
         std::cout << "Requests Left " << ben.getMaxRequests() - ben.getNumRequests() << "\n";
+        complete();
     }
     catch(const std::exception &e)
     {
-        error(".");
+        error("Beneficiary does not exist.");
     }
     medWareHouse.addAction(this);
 }
 PrintBeneficiaryStatus *PrintBeneficiaryStatus::clone() const { return new PrintBeneficiaryStatus(*this); }
-string PrintBeneficiaryStatus::toString() const { return "beneficiaryStatus" + std::to_string(beneficiaryId); }
+string PrintBeneficiaryStatus::toString() const { return "beneficiaryStatus " + std::to_string(beneficiaryId); }
 
 // PrintVolunteerStatus
 PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}

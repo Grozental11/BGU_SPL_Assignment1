@@ -364,10 +364,6 @@ void MedicalWareHouse::start()
                 {
                     throw invalid_argument("Cannot place this request");
                 }
-                if(beneficiaryId < 0 || beneficiaryId > static_cast<int>(Beneficiaries.size())-1)
-                {
-                    beneficiaryId = -1;
-                }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
                 
