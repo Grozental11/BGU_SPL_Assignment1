@@ -79,7 +79,6 @@ bool InventoryManagerVolunteer::decreaseCoolDown()
     }
     return false; 
 }
-// ATT: Im not sure I understood the question correctly, need to verify
 bool InventoryManagerVolunteer::hasRequestsLeft() const
 {
     return activeRequestId != NO_REQUEST;
@@ -93,14 +92,13 @@ void InventoryManagerVolunteer::acceptRequest(const SupplyRequest &request)
     activeRequestId = request.getId();
     timeLeft = coolDown;
 }
-// ATT: I'm not sure of the format of the string, need to verify
 string InventoryManagerVolunteer::toString() const
 {
     std::ostringstream oss;
     oss << "Volunteer ID: " << getId() << "\n";
     oss << "isBusy: " << (isBusy() ? "True" : "False") << "\n";
     oss << "Request ID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
-    oss << "TimeLeft: " << (isBusy() ? std::to_string(getTimeLeft()-1) : "None") << "\n";
+    oss << "Time Left: " << (isBusy() ? std::to_string(getTimeLeft()-1) : "None") << "\n";
     return oss.str();
 }
 
@@ -151,11 +149,6 @@ void CourierVolunteer::acceptRequest(const SupplyRequest &request)
     activeRequestId = request.getId();
     distanceLeft = request.getDistance();
 }
-// bool CourierVolunteer::coolDownFinished()
-// {
-//     return distanceLeft == 0;
-// }
-
 void CourierVolunteer::step()
 {
     if (activeRequestId != NO_REQUEST && distanceLeft >= 0)
@@ -172,7 +165,6 @@ void CourierVolunteer::step()
     }
 }
 
-// ATT: I'm not sure of the format of the string, need to verify
 string CourierVolunteer::toString() const
 {
     std::ostringstream oss;
@@ -180,7 +172,6 @@ string CourierVolunteer::toString() const
     oss << "isBusy: " << (isBusy() ? "True" : "False") << "\n";
     oss << "RequestID: " << (getActiveRequestId() != NO_REQUEST ? std::to_string(getActiveRequestId()) : "None") << "\n";
     oss << "distanceLeft: " << distanceLeft << "\n";
-    oss << "maxDistance: " << maxDistance << "\n";
     return oss.str();
     
 }

@@ -129,7 +129,6 @@ void AddRequset::act(MedicalWareHouse &medWareHouse)
             return;
 }
 
-// HELP: I'm not sure about this function
 string AddRequset::toString() const { return "request " + std::to_string(beneficiaryId); }
 AddRequset *AddRequset::clone() const { return new AddRequset(*this); }
 
@@ -229,9 +228,17 @@ string PrintBeneficiaryStatus::toString() const { return "beneficiaryStatus" + s
 PrintVolunteerStatus::PrintVolunteerStatus(int volunteerId) : volunteerId(volunteerId) {}
 void PrintVolunteerStatus::act(MedicalWareHouse &medWareHouse)
 {
-    Volunteer &vol = medWareHouse.getVolunteer(volunteerId);
-    std::cout << vol.toString() << std::endl;
-    complete();
+    try
+    {
+        Volunteer &vol = medWareHouse.getVolunteer(volunteerId);
+        std::cout << vol.toString() << std::endl;
+        complete();
+
+    }
+    catch(const std::exception& e)
+    {
+        error("Volunteer does not exist.");
+    }
     medWareHouse.addAction(this);
 }
 PrintVolunteerStatus *PrintVolunteerStatus::clone() const { return new PrintVolunteerStatus(*this); }

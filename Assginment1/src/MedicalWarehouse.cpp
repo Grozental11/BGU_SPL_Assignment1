@@ -295,8 +295,6 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
         }
         else if (firstWord == "volunteer")
         {
-            // volunteer Monica inventory manager 2 4
-            // volunteer Chandler courier 7 4
             std::string type1, type2;
             iss >> name >> type1 >> type2;
             if (type1 == "inventory")
@@ -309,7 +307,7 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
                 {
                     type = "courier";
                 }
-            } // need to add checks for invalid input
+            } 
 
             if (type == "inventory manager")
             {
@@ -319,7 +317,7 @@ void MedicalWareHouse::initializeFromConfig(const std::string &configFilePath)
             }
             else if (type == "courier")
             {
-                maxDistance = std::stoi(type2); // Convert type2 to an integer
+                maxDistance = std::stoi(type2); 
                 iss >> distancePerStep;
                 CourierVolunteer *courierVolunteer = new CourierVolunteer(getNextVolunteerId(), name, maxDistance, distancePerStep);
                 volunteers.push_back(courierVolunteer);
@@ -363,10 +361,6 @@ void MedicalWareHouse::start()
                 if (iss.fail())
                 {
                     throw invalid_argument("Cannot place this request");
-                }
-                if(beneficiaryId < 0 || beneficiaryId > static_cast<int>(Beneficiaries.size())-1)
-                {
-                    beneficiaryId = -1;
                 }
                 AddRequset *requestAction = new AddRequset(beneficiaryId);
                 requestAction->act(*this);
@@ -421,13 +415,12 @@ void MedicalWareHouse::start()
             {
                 int volunteerId;
                 iss >> volunteerId;
-                if (iss.fail()) // need to add more checks
+                if (iss.fail())
                 {
                     throw invalid_argument("Invalid volunteer ID.");
                 }
                 PrintVolunteerStatus *printVolunteerStatusAction = new PrintVolunteerStatus(volunteerId);
                 printVolunteerStatusAction->act(*this);
-                // addAction(printVolunteerStatusAction);
             }
             else if (actionType == "log")
             {
@@ -439,7 +432,7 @@ void MedicalWareHouse::start()
                 Close *closeAction = new Close();
                 closeAction->act(*this);
                 delete closeAction;
-                break; // Exit the loop
+                break; 
             }
             else if (actionType == "backup")
             {
